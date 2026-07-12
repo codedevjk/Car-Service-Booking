@@ -1,0 +1,142 @@
+<div>
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <h1 class="page-title">Vehicles</h1>
+    <button class="btn btn-primary" (click)="openNew()">
+      Add Vehicle
+    </button>
+  </div>
+
+  <div class="card mb-3">
+    <div class="card-body">
+      <div class="input-group" style="max-width: 420px;">
+        <span class="input-group-text bg-white"></span>
+        <input class="form-control" placeholder="Search by reg no, make, model..."
+               [value]="search" (input)="onSearchChange($any($event.target).value)" />
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="table-responsive">
+      <table class="table mb-0 align-middle">
+        <thead>
+          <tr>
+            <th>Reg No</th><th>Manufacturer</th><th>Model</th><th>Fuel</th><th>Year</th><th>Color</th><th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="vehicles.length === 0">
+            <td colspan="7" class="text-center text-secondary py-4">No vehicles found</td>
+          </tr>
+          <tr *ngFor="let v of vehicles">
+            <td class="fw-semibold">{{ v.registrationNumber }}</td>
+            <td>{{ v.manufacturer }}</td>
+            <td>{{ v.model }}</td>
+            <td><span class="badge text-bg-light border">{{ v.fuelType }}</span></td>
+            <td>{{ v.year }}</td>
+            <td>{{ v.color }}</td>
+            <td class="text-end">
+              <button class="btn btn-sm btn-outline-primary me-1" (click)="openEdit(v)">Edit</button>
+              <button class="btn btn-sm btn-outline-danger" (click)="requestRemove(v.id)">Delete</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card-footer bg-white d-flex justify-content-between align-items-center">
+      <small class="text-secondary">{{ total }} record(s)</small>
+      <!-- Pagination Component would go here -->
+    </div>
+  </div>
+
+  <!-- Vehicle Modal -->
+  <div *ngIf="showForm">
+    <div class="modal fade show d-block" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <form [formGroup]="vehicleForm" (ngSubmit)="onSubmit()" novalidate>
+            <div class="modal-header">
+              <h5 class="modal-title">{{ editing ? 'Update Vehicle' : 'Add Vehicle' }}</h5>
+              <button type="button" class="btn-close" (click)="closeForm()"></button>
+            </div>
+            
+            <div class="modal-body">
+              <div *ngIf="error" class="alert alert-danger py-2 small">{{ error }}</div>
+              
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">Registration Number</label>
+                  <input class="form-control" [class.is-invalid]="vehicleForm.get('registrationNumber')?.invalid && vehicleForm.get('registrationNumber')?.touched" formControlName="registrationNumber" />
+                  <div *ngIf="vehicleForm.get('registrationNumber')?.hasError('required')" class="invalid-feedback">Required</div>
+                </div>
+                
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">Manufacturer</label>
+                  <input class="form-control" [class.is-invalid]="vehicleForm.get('manufacturer')?.invalid && vehicleForm.get('manufacturer')?.touched" formControlName="manufacturer" />
+                  <div *ngIf="vehicleForm.get('manufacturer')?.hasError('required')" class="invalid-feedback">Required</div>
+                </div>
+                
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">Model</label>
+                  <input class="form-control" [class.is-invalid]="vehicleForm.get('model')?.invalid && vehicleForm.get('model')?.touched" formControlName="model" />
+                  <div *ngIf="vehicleForm.get('model')?.hasError('required')" class="invalid-feedback">Required</div>
+                </div>
+                
+                <div class="col-md-3">
+                  <label class="form-label small fw-semibold">Fuel Type</label>
+                  <select class="form-select" formControlName="fuelType">
+                    <option value="PETROL">Petrol</option>
+                    <option value="DIESEL">Diesel</option>
+                    <option value="ELECTRIC">Electric</option>
+                    <option value="HYBRID">Hybrid</option>
+                  </select>
+                </div>
+                
+                <div class="col-md-3">
+                  <label class="form-label small fw-semibold">Year</label>
+                  <input type="number" class="form-control" [class.is-invalid]="vehicleForm.get('year')?.invalid && vehicleForm.get('year')?.touched" formControlName="year" />
+                  <div *ngIf="vehicleForm.get('year')?.invalid" class="invalid-feedback">Invalid year</div>
+                </div>
+                
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">Color</label>
+                  <input class="form-control" [class.is-invalid]="vehicleForm.get('color')?.invalid && vehicleForm.get('color')?.touched" formControlName="color" />
+                  <div *ngIf="vehicleForm.get('color')?.hasError('required')" class="invalid-feedback">Required</div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="modal-footer">
+              <button type="button" class="btn btn-outline-secondary" (click)="closeForm()">Cancel</button>
+              <button type="submit" class="btn btn-primary" [disabled]="isSubmitting">{{ editing ? 'Update' : 'Create' }}</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+  </div>
+
+  <!-- Confirm Dialog (Inline logic for now) -->
+  <div *ngIf="confirmId">
+    <div class="modal fade show d-block" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Delete vehicle?</h5>
+            <button type="button" class="btn-close" (click)="confirmId = null"></button>
+          </div>
+          <div class="modal-body">
+            This will permanently remove the vehicle. Vehicles linked to active bookings cannot be deleted.
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" (click)="confirmId = null">Cancel</button>
+            <button type="button" class="btn btn-danger" (click)="confirmRemove()">Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+  </div>
+</div>
+

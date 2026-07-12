@@ -1,0 +1,12 @@
+com\infy\carservice\user\dto\VehicleDTO.class
+com\infy\carservice\user\dto\CustomerProfileDTO.class
+com\infy\carservice\user\service\UserService.class
+com\infy\carservice\user\entity\Vehicle.class
+com\infy\carservice\user\service\VehicleService.class
+com\infy\carservice\user\controller\UserController.class
+com\infy\carservice\user\repository\VehicleRepository.class
+com\infy\carservice\user\repository\CustomerProfileRepository.class
+com\infy\carservice\user\entity\CustomerProfile.class
+com\infy\carservice\user\controller\VehicleController.class
+com\infy\carservice\user\config\AppConfig.class
+com\infy\carservice\user\UserServiceApplication.class
