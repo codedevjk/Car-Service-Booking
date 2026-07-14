@@ -1,4 +1,3 @@
 com\infy\carservice\gateway\filter\AuthenticationFilter$Config.class
 com\infy\carservice\gateway\filter\AuthenticationFilter.class
-com\infy\carservice\gateway\util\JwtUtil.class
 com\infy\carservice\gateway\GatewayServiceApplication.class

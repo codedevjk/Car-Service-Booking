@@ -10,16 +10,21 @@ import java.util.List;
 public class VehicleController {
     @Autowired
     private VehicleService vehicleService;
-    @GetMapping("/customer/{customerId}")
-    public List<VehicleDTO> getVehicles(@PathVariable Long customerId) {
-        return vehicleService.getVehiclesByCustomer(customerId);
+    @GetMapping("/user/{userId}")
+    public List<VehicleDTO> getVehicles(@PathVariable String userId, @RequestHeader("X-User-Id") String callerId, @RequestHeader(value = "X-User-Role", defaultValue = "CUSTOMER") String userRole) {
+        return vehicleService.getVehiclesByUserId(userId, callerId, userRole);
     }
     @PostMapping
-    public VehicleDTO addVehicle(@Valid @RequestBody VehicleDTO dto) {
-        return vehicleService.addVehicle(dto);
+    public VehicleDTO addVehicle(@Valid @RequestBody VehicleDTO dto, @RequestHeader("X-User-Id") String callerId) {
+        return vehicleService.addVehicle(dto, callerId);
     }
     @DeleteMapping("/{id}")
-    public void deleteVehicle(@PathVariable Long id) {
-        vehicleService.deleteVehicle(id);
+    public void deleteVehicle(@PathVariable Long id, @RequestHeader("X-User-Id") String callerId) {
+        vehicleService.deleteVehicle(id, callerId);
+    }
+    
+    @GetMapping("/user/{userId}/count")
+    public long getVehicleCount(@PathVariable String userId, @RequestHeader("X-User-Id") String callerId, @RequestHeader(value = "X-User-Role", defaultValue = "CUSTOMER") String userRole) {
+        return vehicleService.getVehiclesByUserId(userId, callerId, userRole).size();
     }
 }

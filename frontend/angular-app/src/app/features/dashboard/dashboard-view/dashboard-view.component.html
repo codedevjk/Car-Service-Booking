@@ -1,2 +1,89 @@
-<p>dashboard-view works!</p>
+<div class="container mt-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>{{ isAdmin ? 'Administrator Dashboard' : 'Customer Dashboard' }}</h2>
+  </div>
 
+  <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+
+  <!-- Admin Dashboard Cards -->
+  <div class="row mb-5" *ngIf="isAdmin">
+    <div class="col-md-3">
+      <div class="card text-white bg-primary shadow-sm h-100">
+        <div class="card-body">
+          <h5 class="card-title">Total Customers</h5>
+          <h2 class="display-5">{{ summary?.totalCustomers || 0 }}</h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-white bg-success shadow-sm h-100">
+        <div class="card-body">
+          <h5 class="card-title">Total Categories</h5>
+          <h2 class="display-5">{{ summary?.totalCategories || 0 }}</h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-dark bg-warning shadow-sm h-100">
+        <div class="card-body">
+          <h5 class="card-title">Total Services</h5>
+          <h2 class="display-5">{{ summary?.totalServices || 0 }}</h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-white bg-danger shadow-sm h-100">
+        <div class="card-body">
+          <h5 class="card-title">Total Bookings</h5>
+          <h2 class="display-5">{{ summary?.totalBookings || 0 }}</h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Customer Dashboard Cards -->
+  <div class="row mb-5" *ngIf="!isAdmin">
+    <div class="col-md-3">
+      <div class="card text-white bg-primary shadow-sm h-100">
+        <div class="card-body">
+          <h5 class="card-title">My Vehicles</h5>
+          <h2 class="display-5">{{ summary?.totalVehicles || 0 }}</h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-white bg-success shadow-sm h-100">
+        <div class="card-body">
+          <h5 class="card-title">Completed Bookings</h5>
+          <h2 class="display-5">{{ summary?.completedBookings || 0 }}</h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-dark bg-warning shadow-sm h-100">
+        <div class="card-body">
+          <h5 class="card-title">Active Bookings</h5>
+          <h2 class="display-5">{{ summary?.activeBookings || 0 }}</h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-white bg-info shadow-sm h-100">
+        <div class="card-body">
+          <h5 class="card-title">Total Bookings</h5>
+          <h2 class="display-5">{{ summary?.totalBookings || 0 }}</h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Embedded Booking List for Recent Activities / History -->
+  <div class="card shadow-sm">
+    <div class="card-header bg-white py-3">
+      <h4 class="mb-0">{{ isAdmin ? 'Recent Booking Activities' : 'My Booking History' }}</h4>
+    </div>
+    <div class="card-body p-0">
+      <app-booking-list></app-booking-list>
+    </div>
+  </div>
+</div>

@@ -23,24 +23,10 @@ export class RegisterComponent implements OnInit {
 
   ngOnInit(): void {
     this.registerForm = this.fb.group({
-      firstName: ['', Validators.required],
-      lastName: ['', Validators.required],
+      fullName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      phone: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
-      confirm: ['', Validators.required]
-    }, { validators: this.passwordMatchValidator });
-  }
-
-  passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
-    const password = control.get('password')?.value;
-    const confirm = control.get('confirm')?.value;
-    if (password !== confirm) {
-      control.get('confirm')?.setErrors({ passwordMismatch: true });
-      return { passwordMismatch: true };
-    } else {
-      return null;
-    }
+      password: ['', [Validators.required]]
+    });
   }
 
   onSubmit(): void {

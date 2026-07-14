@@ -1,8 +1,1 @@
-com\infy\carservice\auth\dto\RegisterRequest.class
 com\infy\carservice\auth\entity\UserCredentials.class
-com\infy\carservice\auth\security\SecurityConfig.class
-com\infy\carservice\auth\service\AuthService.class
-com\infy\carservice\auth\repository\UserRepository.class
-com\infy\carservice\auth\AuthServiceApplication.class
-com\infy\carservice\auth\controller\AuthController.class
-com\infy\carservice\auth\dto\AuthRequest.class

@@ -13,19 +13,29 @@ public class VehicleService {
     private VehicleRepository repository;
     @Autowired
     private ModelMapper modelMapper;
-    public List<VehicleDTO> getVehiclesByCustomer(Long customerId) {
-        return repository.findByCustomerId(customerId).stream()
+    public java.util.List<VehicleDTO> getVehiclesByUserId(String userId, String callerId, String userRole) {
+        if (!"ADMIN".equals(userRole) && !userId.equals(callerId)) {
+            throw new RuntimeException("Unauthorized");
+        }
+        return repository.findByUserId(userId).stream()
             .map(v -> modelMapper.map(v, VehicleDTO.class))
             .collect(Collectors.toList());
     }
-    public VehicleDTO addVehicle(VehicleDTO dto) {
+    public VehicleDTO addVehicle(VehicleDTO dto, String callerId) {
+        if (!dto.getUserId().equals(callerId)) {
+            throw new RuntimeException("Unauthorized to add vehicle for this user");
+        }
         if(repository.findByRegistrationNumber(dto.getRegistrationNumber()).isPresent()) {
             throw new RuntimeException("Vehicle registration number must be unique");
         }
         Vehicle v = modelMapper.map(dto, Vehicle.class);
         return modelMapper.map(repository.save(v), VehicleDTO.class);
     }
-    public void deleteVehicle(Long id) {
+    public void deleteVehicle(Long id, String callerId) {
+        Vehicle vehicle = repository.findById(id).orElseThrow(() -> new RuntimeException("Vehicle not found"));
+        if (!vehicle.getUserId().equals(callerId)) {
+            throw new RuntimeException("Unauthorized to delete this vehicle");
+        }
         repository.deleteById(id);
     }
 }

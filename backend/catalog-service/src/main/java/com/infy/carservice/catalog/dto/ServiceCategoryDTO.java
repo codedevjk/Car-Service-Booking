@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 @Data
 public class ServiceCategoryDTO {
     private Long id;
-    @NotBlank
+    @NotBlank(message = "Please provide a valid name")
     private String name;
     private String description;
     private Boolean active;

@@ -11,16 +11,50 @@ public class UserService {
     private CustomerProfileRepository repository;
     @Autowired
     private ModelMapper modelMapper;
-    public CustomerProfileDTO getProfile(String email) {
-        CustomerProfile profile = repository.findByEmail(email).orElseThrow(() -> new RuntimeException("Profile not found"));
+    public CustomerProfileDTO getProfile(String userId, String callerId, String userRole) {
+        if (!"ADMIN".equals(userRole) && !userId.equals(callerId)) {
+            throw new RuntimeException("Unauthorized");
+        }
+        CustomerProfile profile = repository.findByUserId(userId).orElseThrow(() -> new RuntimeException("Profile not found"));
         return modelMapper.map(profile, CustomerProfileDTO.class);
     }
-    public CustomerProfileDTO updateProfile(String email, CustomerProfileDTO dto) {
-        CustomerProfile profile = repository.findByEmail(email).orElse(new CustomerProfile());
-        profile.setEmail(email);
-        profile.setFirstName(dto.getFirstName());
-        profile.setLastName(dto.getLastName());
-        profile.setPhone(dto.getPhone());
+    
+    public CustomerProfileDTO updateProfile(String userId, CustomerProfileDTO dto, String callerId) {
+        if (!userId.equals(callerId)) {
+            throw new RuntimeException("Unauthorized update: Only the owning customer can update the profile");
+        }
+        CustomerProfile profile = repository.findByUserId(userId).orElseThrow(() -> new RuntimeException("Profile not found"));
+        profile.setFullName(dto.getFullName());
+        profile.setContactNumber(dto.getContactNumber());
+        profile.setAddress(dto.getAddress());
         return modelMapper.map(repository.save(profile), CustomerProfileDTO.class);
+    }
+    
+    public String createProfile(CustomerProfileDTO dto) {
+        if (repository.findByEmail(dto.getEmail()).isPresent()) {
+            throw new RuntimeException("Profile with email already exists");
+        }
+        CustomerProfile profile = new CustomerProfile();
+        profile.setUserId(dto.getUserId());
+        profile.setFullName(dto.getFullName());
+        profile.setEmail(dto.getEmail());
+        repository.save(profile);
+        return "Profile created successfully";
+    }
+
+    public long getUserCount() {
+        return repository.count();
+    }
+
+    @io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker(name = "default", fallbackMethod = "searchUsersByNameFallback")
+    public java.util.List<String> searchUsersByName(String name) {
+        return repository.findByFullNameContainingIgnoreCase(name)
+                .stream()
+                .map(CustomerProfile::getUserId)
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    public java.util.List<String> searchUsersByNameFallback(String name, Throwable t) {
+        return new java.util.ArrayList<>();
     }
 }

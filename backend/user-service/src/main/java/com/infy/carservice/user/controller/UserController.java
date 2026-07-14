@@ -9,13 +9,30 @@ import jakarta.validation.Valid;
 public class UserController {
     @Autowired
     private UserService userService;
-    @GetMapping("/profile")
-    public CustomerProfileDTO getProfile(@RequestParam String email) {
-        // Token validation was removed.
-        return userService.getProfile(email);
+    @GetMapping("/profile/{userId}")
+    public CustomerProfileDTO getProfile(@PathVariable String userId, @RequestHeader("X-User-Id") String callerId, @RequestHeader(value = "X-User-Role", defaultValue = "CUSTOMER") String userRole) {
+        return userService.getProfile(userId, callerId, userRole);
     }
-    @PutMapping("/profile")
-    public CustomerProfileDTO updateProfile(@RequestParam String email, @Valid @RequestBody CustomerProfileDTO dto) {
-        return userService.updateProfile(email, dto);
+    
+    @PutMapping("/profile/{userId}")
+    public CustomerProfileDTO updateProfile(@PathVariable String userId, @Valid @RequestBody CustomerProfileDTO dto, @RequestHeader("X-User-Id") String callerId) {
+        return userService.updateProfile(userId, dto, callerId);
+    }
+    
+    @PostMapping("/profile")
+    public String createProfile(@Valid @RequestBody CustomerProfileDTO dto) {
+        return userService.createProfile(dto);
+    }
+    
+    @GetMapping("/search")
+    public java.util.List<String> searchUsersByName(@RequestParam String name, @RequestHeader("X-User-Id") String callerId, @RequestHeader(value = "X-User-Role", defaultValue = "CUSTOMER") String userRole) {
+        if (!"ADMIN".equals(userRole)) throw new RuntimeException("Unauthorized");
+        return userService.searchUsersByName(name);
+    }
+    
+    @GetMapping("/count")
+    public Long countUsers(@RequestHeader("X-User-Id") String callerId, @RequestHeader(value = "X-User-Role", defaultValue = "CUSTOMER") String userRole) {
+        if (!"ADMIN".equals(userRole)) throw new RuntimeException("Unauthorized");
+        return userService.getUserCount();
     }
 }

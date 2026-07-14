@@ -11,4 +11,10 @@ public class AuthServiceApplication {
     public static void main(String[] args) {
         SpringApplication.run(AuthServiceApplication.class, args);
     }
+
+    @org.springframework.context.annotation.Bean
+    @org.springframework.cloud.client.loadbalancer.LoadBalanced
+    public org.springframework.web.client.RestTemplate restTemplate() {
+        return new org.springframework.web.client.RestTemplate();
+    }
 }

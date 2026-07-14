@@ -1,1 +1,142 @@
-<p>service-list works!</p>
+<div class="container my-4">
+  <h2 class="mb-4">Service Catalog Management (Admin)</h2>
+
+  <!-- Categories Section -->
+  <div class="card mb-5 shadow-sm">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">Categories</h5>
+    </div>
+    <div class="card-body">
+      <form [formGroup]="categoryForm" (ngSubmit)="saveCategory()" class="row g-3 mb-4">
+        <div class="col-md-4">
+          <input type="text" formControlName="name" class="form-control" placeholder="Category Name" required>
+        </div>
+        <div class="col-md-5">
+          <input type="text" formControlName="description" class="form-control" placeholder="Description">
+        </div>
+        <div class="col-md-1 d-flex align-items-center">
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" formControlName="active" id="activeSwitch">
+            <label class="form-check-label" for="activeSwitch">Active</label>
+          </div>
+        </div>
+        <div class="col-md-2 text-end">
+          <button type="submit" class="btn btn-success me-2" [disabled]="categoryForm.invalid">
+            {{ isEditingCategory ? 'Update' : 'Add' }}
+          </button>
+          <button type="button" class="btn btn-secondary" *ngIf="isEditingCategory" (click)="resetCategoryForm()">Cancel</button>
+        </div>
+      </form>
+
+      <table class="table table-hover align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Status</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let cat of categories">
+            <td>{{ cat.id }}</td>
+            <td class="fw-bold">{{ cat.name }}</td>
+            <td>{{ cat.description }}</td>
+            <td>
+              <span class="badge" [ngClass]="cat.active ? 'bg-success' : 'bg-secondary'">
+                {{ cat.active ? 'Active' : 'Inactive' }}
+              </span>
+            </td>
+            <td class="text-end">
+              <button class="btn btn-sm btn-outline-primary me-2" (click)="editCategory(cat)">Edit</button>
+              <button class="btn btn-sm btn-outline-danger" (click)="deleteCategory(cat.id)" [disabled]="!cat.active">Delete</button>
+            </td>
+          </tr>
+          <tr *ngIf="categories.length === 0">
+            <td colspan="5" class="text-center text-muted">No categories found.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Service Packages Section -->
+  <div class="card shadow-sm">
+    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">Service Packages</h5>
+    </div>
+    <div class="card-body">
+      <form [formGroup]="packageForm" (ngSubmit)="savePackage()" class="row g-3 mb-4">
+        <div class="col-md-3">
+          <select formControlName="categoryId" class="form-select" required>
+            <option value="" disabled>Select Category</option>
+            <option *ngFor="let cat of categories" [value]="cat.id">{{ cat.name }}</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <input type="text" formControlName="name" class="form-control" placeholder="Package Name" required>
+        </div>
+        <div class="col-md-3">
+          <input type="text" formControlName="description" class="form-control" placeholder="Description">
+        </div>
+        <div class="col-md-2">
+          <div class="input-group">
+            <span class="input-group-text">$</span>
+            <input type="number" formControlName="price" class="form-control" placeholder="Price" min="0" required>
+          </div>
+        </div>
+        <div class="col-md-2 text-end">
+          <button type="submit" class="btn btn-success me-2" [disabled]="packageForm.invalid">
+            {{ isEditingPackage ? 'Update' : 'Add' }}
+          </button>
+          <button type="button" class="btn btn-secondary" *ngIf="isEditingPackage" (click)="resetPackageForm()">Cancel</button>
+        </div>
+        <div class="col-12 mt-2">
+          <div class="mb-3">
+            <label for="availSwitch" class="form-label">Availability Status</label>
+            <select class="form-select" formControlName="availabilityStatus" id="availSwitch">
+              <option value="ACTIVE">ACTIVE</option>
+              <option value="INACTIVE">INACTIVE</option>
+            </select>
+          </div>
+        </div>
+      </form>
+
+      <table class="table table-hover align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>ID</th>
+            <th>Category ID</th>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Price</th>
+            <th>Status</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let pkg of servicePackages">
+            <td>{{ pkg.id }}</td>
+            <td>{{ pkg.categoryId }}</td>
+            <td class="fw-bold">{{ pkg.name }}</td>
+            <td>{{ pkg.description }}</td>
+            <td>${{ pkg.price }}</td>
+            <td>
+              <span class="badge" [ngClass]="pkg.availabilityStatus === 'ACTIVE' ? 'bg-success' : 'bg-secondary'">
+                {{ pkg.availabilityStatus }}
+              </span>
+            </td>
+            <td class="text-end">
+              <button class="btn btn-sm btn-outline-primary me-2" (click)="editPackage(pkg)">Edit</button>
+              <button class="btn btn-sm btn-outline-danger" (click)="deletePackage(pkg.id)" [disabled]="pkg.availabilityStatus !== 'ACTIVE'">Delete</button>
+            </td>
+          </tr>
+          <tr *ngIf="servicePackages.length === 0">
+            <td colspan="7" class="text-center text-muted">No service packages found.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

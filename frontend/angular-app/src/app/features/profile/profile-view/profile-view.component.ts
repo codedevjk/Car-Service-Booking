@@ -18,28 +18,34 @@ export class ProfileViewComponent implements OnInit {
 
   ngOnInit(): void {
     this.profileForm = this.fb.group({
-      firstName: ['', Validators.required],
-      lastName: ['', Validators.required],
-      phone: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]]
+      userId: [{value: '', disabled: true}],
+      fullName: ['', Validators.required],
+      email: [{value: '', disabled: true}, [Validators.required, Validators.email]],
+      contactNumber: [''],
+      address: ['']
     });
 
     const userStr = localStorage.getItem('user');
-    let email = '';
+    let userId = '';
     if (userStr) {
-      email = JSON.parse(userStr).email;
+      userId = JSON.parse(userStr).userId;
     }
 
-    this.profileService.getProfile(email).subscribe({
-      next: (data) => {
-        this.user = data;
-        this.profileForm.patchValue(this.user);
-        this.isLoading = false;
-      },
-      error: (err) => {
-        console.error('Error fetching profile', err);
-        this.isLoading = false;
-      }
-    });
+    if (userId) {
+      this.profileService.getProfile(userId).subscribe({
+        next: (data) => {
+          this.user = data;
+          this.profileForm.patchValue(this.user);
+          this.isLoading = false;
+        },
+        error: (err) => {
+          console.error('Error fetching profile', err);
+          this.isLoading = false;
+        }
+      });
+    } else {
+      this.isLoading = false;
+    }
   }
 
   onSubmit(): void {
@@ -50,14 +56,21 @@ export class ProfileViewComponent implements OnInit {
     this.isSubmitting = true;
     
     const userStr = localStorage.getItem('user');
-    let email = '';
+    let userId = '';
     if (userStr) {
-      email = JSON.parse(userStr).email;
+      userId = JSON.parse(userStr).userId;
     }
     
-    this.profileService.updateProfile(email, this.profileForm.value).subscribe({
+    // getRawValue gets disabled fields as well (email, userId) which is required by DTO
+    this.profileService.updateProfile(userId, this.profileForm.getRawValue()).subscribe({
       next: (updated) => {
         this.user = { ...this.user, ...updated };
+        // also update local storage if full name changed
+        if (userStr) {
+          const u = JSON.parse(userStr);
+          u.fullName = updated.fullName;
+          localStorage.setItem('user', JSON.stringify(u));
+        }
         this.msg = 'Profile updated successfully';
         this.isSubmitting = false;
         setTimeout(() => this.msg = null, 2500);

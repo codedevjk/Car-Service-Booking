@@ -14,8 +14,10 @@ export class AuthService {
   login(credentials: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/login`, credentials).pipe(
       tap((response: any) => {
-        if (response && response.email) {
+        if (response && response.userId) {
           localStorage.setItem('user', JSON.stringify(response));
+          localStorage.setItem('userId', response.userId);
+          localStorage.setItem('role', response.role);
         }
       })
     );
@@ -27,5 +29,7 @@ export class AuthService {
 
   logout(): void {
     localStorage.removeItem('user');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('role');
   }
 }

@@ -7,11 +7,11 @@
       <div class="card">
         <div class="card-body text-center">
           <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-3" style="width: 96px; height: 96px; font-size: 2rem;">
-            {{ user.firstName[0] }}{{ user.lastName[0] }}
+            {{ user.fullName ? user.fullName[0] : 'U' }}
           </div>
-          <h5 class="mb-0">{{ user.firstName }} {{ user.lastName }}</h5>
+          <h5 class="mb-0">{{ user.fullName }}</h5>
           <div class="text-secondary small">{{ user.email }}</div>
-          <span class="badge text-bg-primary mt-2">{{ user.role }}</span>
+          <span class="badge text-bg-primary mt-2">{{ user.role || 'Customer' }}</span>
         </div>
       </div>
     </div>
@@ -25,35 +25,27 @@
           <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" novalidate>
             <div class="row g-3">
               <div class="col-md-6">
-                <label class="form-label small fw-semibold">First name</label>
-                <input class="form-control" [class.is-invalid]="profileForm.get('firstName')?.invalid && profileForm.get('firstName')?.touched" formControlName="firstName" />
-                <div *ngIf="profileForm.get('firstName')?.hasError('required')" class="invalid-feedback">
-                  Please provide a valid first name
-                </div>
+                <label class="form-label small fw-semibold">User ID (read-only)</label>
+                <input class="form-control" formControlName="userId" />
               </div>
-              
-              <div class="col-md-6">
-                <label class="form-label small fw-semibold">Last name</label>
-                <input class="form-control" [class.is-invalid]="profileForm.get('lastName')?.invalid && profileForm.get('lastName')?.touched" formControlName="lastName" />
-                <div *ngIf="profileForm.get('lastName')?.hasError('required')" class="invalid-feedback">
-                  Please provide a valid last name
-                </div>
-              </div>
-              
-              <div class="col-md-6">
-                <label class="form-label small fw-semibold">Phone</label>
-                <input class="form-control" [class.is-invalid]="profileForm.get('phone')?.invalid && profileForm.get('phone')?.touched" formControlName="phone" />
-                <div *ngIf="profileForm.get('phone')?.hasError('required')" class="invalid-feedback">
-                  Please provide a valid phone
-                </div>
-                <div *ngIf="profileForm.get('phone')?.hasError('pattern')" class="invalid-feedback">
-                  10 digits required
-                </div>
-              </div>
-              
               <div class="col-md-6">
                 <label class="form-label small fw-semibold">Email (read-only)</label>
-                <input class="form-control" [value]="user.email" disabled />
+                <input class="form-control" formControlName="email" />
+              </div>
+              <div class="col-md-12">
+                <label class="form-label small fw-semibold">Full name</label>
+                <input class="form-control" [class.is-invalid]="profileForm.get('fullName')?.invalid && profileForm.get('fullName')?.touched" formControlName="fullName" />
+                <div *ngIf="profileForm.get('fullName')?.hasError('required')" class="invalid-feedback">
+                  Please provide a valid fullName
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold">Contact Number</label>
+                <input class="form-control" formControlName="contactNumber" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold">Address</label>
+                <input class="form-control" formControlName="address" />
               </div>
             </div>
             

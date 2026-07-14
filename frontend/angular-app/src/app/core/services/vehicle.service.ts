@@ -10,23 +10,28 @@ export class VehicleService {
 
   constructor(private http: HttpClient) { }
 
-  getVehicles(): Observable<any[]> {
-    return this.http.get<any[]>(this.apiUrl);
+  getVehicles(userId: string): Observable<any[]> {
+    const headers = { 'X-User-Id': userId };
+    return this.http.get<any[]>(`${this.apiUrl}/user/${userId}`, { headers });
   }
 
-  getVehicle(id: number): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/${id}`);
+  getVehicle(id: number, userId: string): Observable<any> {
+    const headers = { 'X-User-Id': userId };
+    return this.http.get<any>(`${this.apiUrl}/${id}`, { headers });
   }
 
-  addVehicle(vehicle: any): Observable<any> {
-    return this.http.post<any>(this.apiUrl, vehicle);
+  addVehicle(vehicle: any, userId: string): Observable<any> {
+    const headers = { 'X-User-Id': userId };
+    return this.http.post<any>(this.apiUrl, vehicle, { headers });
   }
 
-  updateVehicle(id: number, vehicle: any): Observable<any> {
-    return this.http.put<any>(`${this.apiUrl}/${id}`, vehicle);
+  updateVehicle(id: number, vehicle: any, userId: string): Observable<any> {
+    const headers = { 'X-User-Id': userId };
+    return this.http.put<any>(`${this.apiUrl}/${id}`, vehicle, { headers });
   }
 
-  deleteVehicle(id: number): Observable<any> {
-    return this.http.delete<any>(`${this.apiUrl}/${id}`);
+  deleteVehicle(id: number, userId: string): Observable<any> {
+    const headers = { 'X-User-Id': userId };
+    return this.http.delete<any>(`${this.apiUrl}/${id}`, { headers });
   }
 }

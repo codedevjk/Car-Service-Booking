@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { BookingRoutingModule } from './booking-routing.module';
 import { BookingListComponent } from './booking-list/booking-list.component';
 import { BookingFormComponent } from './booking-form/booking-form.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 
 @NgModule({
@@ -13,7 +14,12 @@ import { BookingFormComponent } from './booking-form/booking-form.component';
   ],
   imports: [
     CommonModule,
-    BookingRoutingModule
+    BookingRoutingModule,
+    FormsModule,
+    ReactiveFormsModule
+  ],
+  exports: [
+    BookingListComponent
   ]
 })
 export class BookingModule { }

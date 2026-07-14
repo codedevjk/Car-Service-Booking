@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 import java.util.Map;
 import java.util.HashMap;
+import org.springframework.http.ResponseEntity;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -19,19 +20,24 @@ public class AuthController {
     private UserRepository userRepository;
 
     @PostMapping("/register")
-    public String register(@Valid @RequestBody RegisterRequest request) {
-        return authService.register(request);
+    public ResponseEntity<Map<String, String>> register(@Valid @RequestBody RegisterRequest request) {
+        String msg = authService.register(request);
+        Map<String, String> response = new HashMap<>();
+        response.put("message", msg);
+        return new ResponseEntity<>(response, org.springframework.http.HttpStatus.CREATED);
     }
     
     @PostMapping("/login")
-    public Map<String, String> login(@Valid @RequestBody AuthRequest request) {
+    public ResponseEntity<Map<String, String>> login(@Valid @RequestBody AuthRequest request) {
         UserCredentials user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
         if(request.getPassword().equals(user.getPassword())) {
             Map<String, String> response = new HashMap<>();
             response.put("email", user.getEmail());
             response.put("role", user.getRole());
-            return response;
+            response.put("userId", user.getUserId());
+            response.put("fullName", user.getFullName());
+            return new ResponseEntity<>(response, org.springframework.http.HttpStatus.OK);
         }
         throw new RuntimeException("Invalid credentials");
     }

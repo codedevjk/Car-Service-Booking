@@ -11,7 +11,7 @@ public class Booking {
     @Column(unique = true, nullable = false)
     private String referenceNumber;
     @Column(nullable = false)
-    private Long customerId;
+    private String customerId;
     @Column(nullable = false)
     private Long vehicleId;
     @Column(nullable = false)

@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { BookingService } from 'src/app/core/services/booking.service';
 
 @Component({
   selector: 'app-dashboard-view',
@@ -7,15 +8,20 @@ import { Component, OnInit } from '@angular/core';
 })
 export class DashboardViewComponent implements OnInit {
 
-  // TODO: Trainee to implement US09 (Dashboard & Booking History)
-  // 1. Inject DashboardService and Auth service to get current user role.
-  // 2. Fetch the dashboard summary (Admin sees all stats, User sees only their stats).
-  // 3. Store stats (total bookings, revenue, pending tasks) in local variables.
-  // 4. (Optional) Initialize chart logic.
+  isAdmin: boolean = false;
+  userId: string = '';
+  summary: any = {};
+  errorMessage: string = '';
 
-  constructor() { }
+  constructor(private bookingService: BookingService) {
+    this.userId = localStorage.getItem('userId') || '';
+    this.isAdmin = this.userId.startsWith('A');
+  }
 
   ngOnInit(): void {
-    // TODO: Load dashboard statistics based on role
+    this.bookingService.getDashboardSummary(this.userId, this.isAdmin).subscribe({
+      next: (data) => this.summary = data,
+      error: (err) => this.errorMessage = 'Failed to load dashboard statistics'
+    });
   }
 }

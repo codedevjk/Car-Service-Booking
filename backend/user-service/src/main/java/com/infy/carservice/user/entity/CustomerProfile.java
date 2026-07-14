@@ -7,11 +7,17 @@ public class CustomerProfile {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    
+    @Column(unique = true, nullable = false)
+    private String userId;
+
+    @Column(nullable = false)
+    private String fullName;
+
     @Column(unique = true, nullable = false)
     private String email;
-    @Column(nullable = false)
-    private String firstName;
-    @Column(nullable = false)
-    private String lastName;
-    private String phone;
+
+    private String contactNumber;
+    
+    private String address;
 }

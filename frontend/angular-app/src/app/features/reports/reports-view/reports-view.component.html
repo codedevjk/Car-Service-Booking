@@ -1,2 +1,104 @@
-<p>reports-view works!</p>
+<div class="container my-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Booking Search & Reports</h2>
+  </div>
 
+  <!-- Statistics Panel -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-white py-3">
+      <h5 class="mb-0">Booking Statistics</h5>
+    </div>
+    <div class="card-body">
+      <div class="row text-center">
+        <div class="col" *ngFor="let status of objectKeys(statistics)">
+          <div class="p-3 border rounded bg-light">
+            <h3 class="mb-1">{{ statistics[status] || 0 }}</h3>
+            <small class="text-muted fw-bold">{{ status }}</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search & Filter Panel -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-white py-3">
+      <h5 class="mb-0">Search Filters</h5>
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-3">
+          <label class="form-label">Reference Number</label>
+          <input type="text" class="form-control" [(ngModel)]="searchRef" placeholder="e.g. B123ABC">
+        </div>
+        <div class="col-md-3" *ngIf="isAdmin">
+          <label class="form-label">Customer Name</label>
+          <input type="text" class="form-control" [(ngModel)]="searchName" placeholder="Search by name">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Status</label>
+          <select class="form-select" [(ngModel)]="searchStatus">
+            <option value="">All</option>
+            <option value="PENDING">PENDING</option>
+            <option value="CONFIRMED">CONFIRMED</option>
+            <option value="IN_SERVICE">IN_SERVICE</option>
+            <option value="READY_FOR_DELIVERY">READY_FOR_DELIVERY</option>
+            <option value="COMPLETED">COMPLETED</option>
+            <option value="CANCELLED">CANCELLED</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Appointment Date</label>
+          <input type="date" class="form-control" [(ngModel)]="searchDate">
+        </div>
+      </div>
+      <div class="mt-4 d-flex gap-2">
+        <button class="btn btn-primary" (click)="page = 0; search()">Search</button>
+        <button class="btn btn-outline-secondary" (click)="clear()">Clear Filters</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results Table -->
+  <div *ngIf="errorMessage" class="alert alert-info">
+    {{ errorMessage }}
+  </div>
+
+  <div class="card shadow-sm" *ngIf="bookings.length > 0">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Reference #</th>
+              <th>Date & Time</th>
+              <th>Status</th>
+              <th>Problem Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let b of bookings">
+              <td class="fw-bold">{{ b.referenceNumber }}</td>
+              <td>
+                <div>{{ b.appointmentDate | date:'mediumDate' }}</div>
+                <small class="text-muted">{{ b.timeSlot }}</small>
+              </td>
+              <td>
+                <span class="badge rounded-pill bg-secondary">{{ b.status }}</span>
+              </td>
+              <td>{{ b.problemDescription || 'N/A' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+    <div class="card-footer bg-white d-flex justify-content-between align-items-center py-3">
+      <span class="text-muted">Page {{ page + 1 }} of {{ totalPages }}</span>
+      <div class="btn-group">
+        <button class="btn btn-sm btn-outline-primary" [disabled]="page === 0" (click)="prevPage()">Previous</button>
+        <button class="btn btn-sm btn-outline-primary" [disabled]="page >= totalPages - 1" (click)="nextPage()">Next</button>
+      </div>
+    </div>
+  </div>
+</div>

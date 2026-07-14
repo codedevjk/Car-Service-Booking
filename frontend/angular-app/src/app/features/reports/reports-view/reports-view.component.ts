@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { BookingService } from 'src/app/core/services/booking.service';
 
 @Component({
   selector: 'app-reports-view',
@@ -7,15 +8,81 @@ import { Component, OnInit } from '@angular/core';
 })
 export class ReportsViewComponent implements OnInit {
 
-  // TODO: Trainee to implement US10 (Booking Search & Reports)
-  // 1. Inject BookingService.
-  // 2. Implement logic to search bookings by specific reference number.
-  // 3. Implement logic to generate/export reports (e.g. CSV).
-  // 4. Handle rendering of search results.
+  isAdmin: boolean = false;
+  userId: string = '';
+  
+  // Search Filters
+  searchRef: string = '';
+  searchName: string = '';
+  searchStatus: string = '';
+  searchDate: string = '';
 
-  constructor() { }
+  // Results
+  bookings: any[] = [];
+  statistics: any = {};
+  errorMessage: string = '';
+
+  // Pagination
+  page: number = 0;
+  size: number = 10;
+  totalPages: number = 0;
+
+  constructor(private bookingService: BookingService) {
+    this.userId = localStorage.getItem('userId') || '';
+    this.isAdmin = this.userId.startsWith('A');
+  }
 
   ngOnInit(): void {
-    // TODO: Initialize report view
+    this.loadStatistics();
+    this.search();
+  }
+
+  loadStatistics(): void {
+    this.bookingService.getBookingStatistics().subscribe({
+      next: (data) => this.statistics = data,
+      error: () => this.errorMessage = 'Failed to load statistics'
+    });
+  }
+
+  search(): void {
+    this.bookingService.searchBookings(this.searchRef, this.searchName, this.searchStatus, this.searchDate, this.page, this.size).subscribe({
+      next: (data) => {
+        this.bookings = data.content || [];
+        this.totalPages = data.totalPages || 0;
+        if (this.bookings.length === 0) {
+          this.errorMessage = 'No matching records found.';
+        } else {
+          this.errorMessage = '';
+        }
+      },
+      error: () => this.errorMessage = 'Failed to load search results'
+    });
+  }
+
+  clear(): void {
+    this.searchRef = '';
+    this.searchName = '';
+    this.searchStatus = '';
+    this.searchDate = '';
+    this.page = 0;
+    this.search();
+  }
+
+  nextPage(): void {
+    if (this.page < this.totalPages - 1) {
+      this.page++;
+      this.search();
+    }
+  }
+
+  prevPage(): void {
+    if (this.page > 0) {
+      this.page--;
+      this.search();
+    }
+  }
+
+  objectKeys(obj: any): string[] {
+    return Object.keys(obj || {});
   }
 }

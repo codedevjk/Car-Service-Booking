@@ -1,2 +1,86 @@
-<p>booking-form works!</p>
+<div class="container my-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+          <h4 class="mb-0">Book a Service Appointment</h4>
+        </div>
+        <div class="card-body p-4">
+          
+          <div *ngIf="successMessage" class="alert alert-success">
+            {{ successMessage }}
+          </div>
+          <div *ngIf="errorMessage" class="alert alert-danger">
+            {{ errorMessage }}
+          </div>
+
+          <form [formGroup]="bookingForm" (ngSubmit)="onSubmit()" *ngIf="!successMessage">
+            
+            <div class="mb-3">
+              <label for="vehicleId" class="form-label fw-bold">Select Vehicle <span class="text-danger">*</span></label>
+              <select id="vehicleId" formControlName="vehicleId" class="form-select" required>
+                <option value="" disabled>-- Select Your Vehicle --</option>
+                <option *ngFor="let vehicle of vehicles" [value]="vehicle.id">
+                  {{ vehicle.manufacturer }} {{ vehicle.model }} ({{ vehicle.registrationNumber }})
+                </option>
+              </select>
+              <div class="text-danger small mt-1" *ngIf="bookingForm.get('vehicleId')?.invalid && bookingForm.get('vehicleId')?.touched">
+                Please select a vehicle.
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="serviceId" class="form-label fw-bold">Select Service <span class="text-danger">*</span></label>
+              <select id="serviceId" formControlName="serviceId" class="form-select" required>
+                <option value="" disabled>-- Select a Service --</option>
+                <option *ngFor="let pkg of servicePackages" [value]="pkg.id">
+                  {{ pkg.name }} - ${{ pkg.price }}
+                </option>
+              </select>
+              <div class="text-danger small mt-1" *ngIf="bookingForm.get('serviceId')?.invalid && bookingForm.get('serviceId')?.touched">
+                Please select a service.
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="appointmentDate" class="form-label fw-bold">Date <span class="text-danger">*</span></label>
+                <input type="date" id="appointmentDate" formControlName="appointmentDate" class="form-control" required>
+                <div class="text-danger small mt-1" *ngIf="bookingForm.get('appointmentDate')?.invalid && bookingForm.get('appointmentDate')?.touched">
+                  Please select a valid future date.
+                </div>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label for="timeSlot" class="form-label fw-bold">Time Slot <span class="text-danger">*</span></label>
+                <select id="timeSlot" formControlName="timeSlot" class="form-select" required>
+                  <option value="" disabled>-- Select Time Slot --</option>
+                  <option value="09:00 AM - 11:00 AM">09:00 AM - 11:00 AM</option>
+                  <option value="11:00 AM - 01:00 PM">11:00 AM - 01:00 PM</option>
+                  <option value="02:00 PM - 04:00 PM">02:00 PM - 04:00 PM</option>
+                  <option value="04:00 PM - 06:00 PM">04:00 PM - 06:00 PM</option>
+                </select>
+                <div class="text-danger small mt-1" *ngIf="bookingForm.get('timeSlot')?.invalid && bookingForm.get('timeSlot')?.touched">
+                  Please select a time slot.
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <label for="problemDescription" class="form-label fw-bold">Problem Description (Optional)</label>
+              <textarea id="problemDescription" formControlName="problemDescription" class="form-control" rows="3" placeholder="Briefly describe any specific issues..."></textarea>
+            </div>
+
+            <div class="d-grid gap-2">
+              <button type="submit" class="btn btn-primary btn-lg" [disabled]="bookingForm.invalid">
+                Confirm Booking
+              </button>
+            </div>
+            
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 

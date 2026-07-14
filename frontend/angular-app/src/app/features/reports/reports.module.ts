@@ -5,13 +5,16 @@ import { ReportsRoutingModule } from './reports-routing.module';
 import { ReportsViewComponent } from './reports-view/reports-view.component';
 
 
+import { FormsModule } from '@angular/forms';
+
 @NgModule({
   declarations: [
     ReportsViewComponent
   ],
   imports: [
     CommonModule,
-    ReportsRoutingModule
+    ReportsRoutingModule,
+    FormsModule
   ]
 })
 export class ReportsModule { }

@@ -3,12 +3,16 @@ import lombok.Data;
 import jakarta.validation.constraints.NotBlank;
 @Data
 public class CustomerProfileDTO {
-    private Long id;
-    @NotBlank
+    private String userId;
+    
+    @NotBlank(message = "Please provide a valid fullName")
+    private String fullName;
+
+    @NotBlank(message = "Please provide a valid email")
+    @jakarta.validation.constraints.Email(message = "Please provide a valid email")
     private String email;
-    @NotBlank
-    private String firstName;
-    @NotBlank
-    private String lastName;
-    private String phone;
+
+    private String contactNumber;
+    
+    private String address;
 }

@@ -10,11 +10,13 @@ export class ProfileService {
 
   constructor(private http: HttpClient) { }
 
-  getProfile(email: string): Observable<any> {
-    return this.http.get(`${this.apiUrl}?email=${email}`);
+  getProfile(userId: string): Observable<any> {
+    const headers = { 'X-User-Id': userId };
+    return this.http.get(`${this.apiUrl}/${userId}`, { headers });
   }
 
-  updateProfile(email: string, profile: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}?email=${email}`, profile);
+  updateProfile(userId: string, profile: any): Observable<any> {
+    const headers = { 'X-User-Id': userId };
+    return this.http.put(`${this.apiUrl}/${userId}`, profile, { headers });
   }
 }

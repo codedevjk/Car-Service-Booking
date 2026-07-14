@@ -19,11 +19,8 @@
             placeholder="you@example.com"
             formControlName="email"
           />
-          <div *ngIf="loginForm.get('email')?.hasError('required')" class="invalid-feedback">
+          <div *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched" class="invalid-feedback">
             Please provide a valid email
-          </div>
-          <div *ngIf="loginForm.get('email')?.hasError('email')" class="invalid-feedback">
-            Invalid email format
           </div>
         </div>
 
@@ -37,9 +34,6 @@
           />
           <div *ngIf="loginForm.get('password')?.hasError('required')" class="invalid-feedback">
             Please provide a valid password
-          </div>
-          <div *ngIf="loginForm.get('password')?.hasError('minlength')" class="invalid-feedback">
-            Minimum 6 characters
           </div>
         </div>
 

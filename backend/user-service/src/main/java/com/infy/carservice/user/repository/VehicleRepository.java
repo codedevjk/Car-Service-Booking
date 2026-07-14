@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 import java.util.Optional;
 public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
-    List<Vehicle> findByCustomerId(Long customerId);
+    List<Vehicle> findByUserId(String userId);
     Optional<Vehicle> findByRegistrationNumber(String registrationNumber);
+    long countByUserId(String userId);
 }
