@@ -45,7 +45,7 @@ class UserServiceTest {
         when(repository.findByUserId("U1")).thenReturn(Optional.of(cp));
         when(modelMapper.map(cp, CustomerProfileDTO.class)).thenReturn(dto);
 
-        CustomerProfileDTO result = userService.getProfile("U1", "U1");
+        CustomerProfileDTO result = userService.getProfile("U1", "U1", "CUSTOMER");
         assertNotNull(result);
         assertEquals("U1", result.getUserId());
     }
@@ -54,7 +54,7 @@ class UserServiceTest {
     void testGetProfile_NotFound() {
         when(repository.findByUserId("U1")).thenReturn(Optional.empty());
 
-        RuntimeException ex = assertThrows(RuntimeException.class, () -> userService.getProfile("U1", "U1"));
+        RuntimeException ex = assertThrows(RuntimeException.class, () -> userService.getProfile("U1", "U1", "CUSTOMER"));
         assertEquals("Profile not found", ex.getMessage());
     }
 

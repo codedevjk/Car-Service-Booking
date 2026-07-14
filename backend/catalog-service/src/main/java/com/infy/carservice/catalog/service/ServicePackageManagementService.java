@@ -7,7 +7,12 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import com.infy.carservice.catalog.entity.AvailabilityStatus;
 
@@ -71,15 +76,15 @@ public class ServicePackageManagementService {
         ServicePackage sp = repository.findById(id).orElseThrow(() -> new RuntimeException("Service package not found"));
         
         try {
-            org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+            HttpHeaders headers = new HttpHeaders();
             headers.set("X-User-Id", "A1");
-            org.springframework.http.HttpEntity<String> entity = new org.springframework.http.HttpEntity<>(headers);
-            org.springframework.http.ResponseEntity<Long> res = restTemplate.exchange("http://booking-service/api/bookings/active/count?serviceId=" + id, org.springframework.http.HttpMethod.GET, entity, Long.class);
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+            ResponseEntity<Long> res = restTemplate.exchange("http://booking-service/api/bookings/active/count?serviceId=" + id, HttpMethod.GET, entity, Long.class);
             Long activeBookings = res.getBody();
             if (activeBookings != null && activeBookings > 0) {
                 throw new RuntimeException("Cannot delete service package as it is associated with active bookings");
             }
-        } catch (org.springframework.web.client.RestClientException e) {
+        } catch (RestClientException e) {
             throw new RuntimeException("Validation failed: Could not verify active bookings");
         }
 

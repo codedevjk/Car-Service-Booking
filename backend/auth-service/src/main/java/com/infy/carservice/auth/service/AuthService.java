@@ -3,14 +3,18 @@ import com.infy.carservice.auth.dto.RegisterRequest;
 import com.infy.carservice.auth.entity.UserCredentials;
 import com.infy.carservice.auth.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import java.util.Map;
+import java.util.HashMap;
+
 @Service
 public class AuthService {
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    private org.springframework.web.client.RestTemplate restTemplate;
+    private RestTemplate restTemplate;
 
     public String register(RegisterRequest request) {
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
@@ -31,9 +35,9 @@ public class AuthService {
         return "User registered successfully";
     }
 
-    @io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker(name = "userService", fallbackMethod = "createProfileFallback")
+    @CircuitBreaker(name = "userService", fallbackMethod = "createProfileFallback")
     public void createProfileInUserService(UserCredentials user) {
-        java.util.Map<String, String> profileDto = new java.util.HashMap<>();
+        Map<String, String> profileDto = new HashMap<>();
         profileDto.put("userId", user.getUserId());
         profileDto.put("fullName", user.getFullName());
         profileDto.put("email", user.getEmail());

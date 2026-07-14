@@ -7,6 +7,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 import java.util.List;
+import java.util.Map;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.format.annotation.DateTimeFormat;
+import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/api/bookings")
@@ -38,9 +44,9 @@ public class BookingController {
     }
 
     @GetMapping
-    public org.springframework.data.domain.Page<BookingDTO> getAllBookings(
+    public Page<BookingDTO> getAllBookings(
             @RequestHeader(value = "X-User-Role", defaultValue = "CUSTOMER") String userRole,
-            @org.springframework.data.web.PageableDefault(size = 20) org.springframework.data.domain.Pageable pageable) {
+            @PageableDefault(size = 20) Pageable pageable) {
         if (!"ADMIN".equals(userRole)) throw new RuntimeException("Unauthorized");
         return bookingService.getAllBookings(pageable);
     }
@@ -51,19 +57,19 @@ public class BookingController {
     }
     
     @GetMapping("/search")
-    public org.springframework.data.domain.Page<BookingDTO> searchBookings(
+    public Page<BookingDTO> searchBookings(
             @RequestParam(required = false) String referenceNumber,
             @RequestParam(required = false) String customerName,
             @RequestParam(required = false) BookingStatus status,
-            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate appointmentDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate appointmentDate,
             @RequestHeader("X-User-Id") String callerId,
             @RequestHeader(value = "X-User-Role", defaultValue = "CUSTOMER") String userRole,
-            @org.springframework.data.web.PageableDefault(size = 20) org.springframework.data.domain.Pageable pageable) {
+            @PageableDefault(size = 20) Pageable pageable) {
         return bookingService.searchBookings(referenceNumber, customerName, status, appointmentDate, callerId, userRole, pageable);
     }
     
     @GetMapping("/statistics")
-    public java.util.Map<String, Long> getBookingStatistics(@RequestHeader("X-User-Id") String callerId, @RequestHeader(value = "X-User-Role", defaultValue = "CUSTOMER") String userRole) {
+    public Map<String, Long> getBookingStatistics(@RequestHeader("X-User-Id") String callerId, @RequestHeader(value = "X-User-Role", defaultValue = "CUSTOMER") String userRole) {
         return bookingService.getBookingStatistics(callerId, userRole);
     }
 

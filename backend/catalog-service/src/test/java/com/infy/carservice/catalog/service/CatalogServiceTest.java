@@ -22,11 +22,19 @@ import static org.mockito.Mockito.times;
 import static org.mockito.ArgumentMatchers.anyString;
 
 import com.infy.carservice.catalog.service.ServiceCategoryService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import com.infy.carservice.catalog.entity.ServicePackage;
+
+import com.infy.carservice.catalog.repository.ServicePackageRepository;
 
 class CatalogServiceTest {
 
     @Mock
     private ServiceCategoryRepository repository;
+
+    @Mock
+    private ServicePackageRepository servicePackageRepository;
 
     @Mock
     private ModelMapper modelMapper;
@@ -84,7 +92,10 @@ ServiceCategory saved = new ServiceCategory();
         cat.setId(1L);
         when(repository.findById(1L)).thenReturn(Optional.of(cat));
         
-assertDoesNotThrow(() -> catalogService.deleteCategory(1L));
+        Page<ServicePackage> emptyPage = new PageImpl<>(Collections.emptyList());
+        when(servicePackageRepository.findByAvailabilityStatusAndCategoryId(any(), any(), any())).thenReturn(emptyPage);
+        
+        assertDoesNotThrow(() -> catalogService.deleteCategory(1L));
         verify(repository, times(1)).save(cat);
         assertFalse(cat.getActive());
     }

@@ -13,7 +13,7 @@ public class VehicleService {
     private VehicleRepository repository;
     @Autowired
     private ModelMapper modelMapper;
-    public java.util.List<VehicleDTO> getVehiclesByUserId(String userId, String callerId, String userRole) {
+    public List<VehicleDTO> getVehiclesByUserId(String userId, String callerId, String userRole) {
         if (!"ADMIN".equals(userRole) && !userId.equals(callerId)) {
             throw new RuntimeException("Unauthorized");
         }

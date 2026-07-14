@@ -13,7 +13,15 @@ import org.modelmapper.ModelMapper;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -49,13 +57,13 @@ class BookingServiceTest {
         dto.setAppointmentDate(LocalDate.now().plusDays(1));
         dto.setTimeSlot("10:00 AM - 11:00 AM");
 
-        java.util.Map<String, Object> vehicleResp = new java.util.HashMap<>();
+        Map<String, Object> vehicleResp = new HashMap<>();
         vehicleResp.put("userId", "U1");
-        when(restTemplate.getForObject("http://user-service/api/vehicles/1", java.util.Map.class)).thenReturn(vehicleResp);
+        when(restTemplate.getForObject("http://user-service/api/vehicles/1", Map.class)).thenReturn(vehicleResp);
 
-        java.util.Map<String, Object> serviceResp = new java.util.HashMap<>();
+        Map<String, Object> serviceResp = new HashMap<>();
         serviceResp.put("availabilityStatus", true);
-        when(restTemplate.getForObject("http://catalog-service/api/service-packages/1", java.util.Map.class)).thenReturn(serviceResp);
+        when(restTemplate.getForObject("http://catalog-service/api/service-packages/1", Map.class)).thenReturn(serviceResp);
 
         when(bookingRepository.existsByVehicleIdAndAppointmentDateAndTimeSlot(any(), any(), any())).thenReturn(false);
 
@@ -98,20 +106,22 @@ class BookingServiceTest {
         BookingDTO dto = new BookingDTO();
         dto.setReferenceNumber("B123");
 
-        org.springframework.data.domain.Page<Booking> page = new org.springframework.data.domain.PageImpl<>(java.util.Collections.singletonList(booking));
-        when(bookingRepository.findAll(any(org.springframework.data.jpa.domain.Specification.class), any(org.springframework.data.domain.Pageable.class))).thenReturn(page);
+        Page<Booking> page = new PageImpl<>(Collections.singletonList(booking));
+        when(bookingRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);
         when(modelMapper.map(booking, BookingDTO.class)).thenReturn(dto);
 
-        org.springframework.data.domain.Page<BookingDTO> result = bookingService.searchBookings("B123", null, null, null, "A1", org.springframework.data.domain.PageRequest.of(0, 10));
-        assertEquals(1, result.getContent().size());
+        Page<BookingDTO> result = bookingService.searchBookings("B123", null, null, null, "A1", "ADMIN", PageRequest.of(0, 10));
+        assertNotNull(result);
+        assertEquals(1, result.getTotalElements());
         assertEquals("B123", result.getContent().get(0).getReferenceNumber());
     }
 
     @Test
-    void testGetBookingStatistics_AsCustomer() {
-        when(bookingRepository.countByCustomerIdAndStatus(eq("U1"), any(BookingStatus.class))).thenReturn(5L);
-        
-        java.util.Map<String, Long> stats = bookingService.getBookingStatistics("U1");
+    void testGetBookingStatistics() {
+        when(bookingRepository.count((Specification<Booking>) any())).thenReturn(5L);
+        when(bookingRepository.countByCustomerIdAndStatus(anyString(), any())).thenReturn(5L);
+
+        Map<String, Long> stats = bookingService.getBookingStatistics("U1", "CUSTOMER");
         assertNotNull(stats);
         assertEquals(5L, stats.get("PENDING"));
     }

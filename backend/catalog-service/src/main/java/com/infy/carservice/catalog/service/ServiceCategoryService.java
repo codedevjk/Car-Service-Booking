@@ -8,6 +8,7 @@ import com.infy.carservice.catalog.entity.AvailabilityStatus;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -55,7 +56,7 @@ public class ServiceCategoryService {
         ServiceCategory category = repository.findById(id).orElseThrow(() -> new RuntimeException("Category not found"));
 
         // Ensure no active services exist under this category
-        long activeCount = servicePackageRepository.findByAvailabilityStatusAndCategoryId(AvailabilityStatus.ACTIVE, id, org.springframework.data.domain.Pageable.unpaged()).getTotalElements();
+        long activeCount = servicePackageRepository.findByAvailabilityStatusAndCategoryId(AvailabilityStatus.ACTIVE, id, Pageable.unpaged()).getTotalElements();
         if (activeCount > 0) {
             throw new RuntimeException("Cannot delete category containing active services");
         }

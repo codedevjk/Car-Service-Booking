@@ -1,37 +1,38 @@
 # Car Service Booking System
 
-A robust, microservices-based application for managing car service appointments. This project features a Spring Boot backend cluster (Eureka Discovery, API Gateway, and four core microservices) and an Angular frontend, designed with strict role-based access control and cross-service validations.
+## Overview
 
-## Architecture Overview
+The Car Service Booking System is a robust microservices-based application built with Spring Boot for the backend and Angular for the frontend. It allows users to book car service packages, manage service categories, and handle user authentication and profiles securely.
 
-The system is built using a microservices architecture:
-*   **Discovery Server (Port 8761):** Netflix Eureka Server for service registration and discovery.
-*   **API Gateway (Port 8080):** Spring Cloud Gateway that handles routing and securely passes `X-User-Id` and `X-User-Role` HTTP headers to downstream services.
-*   **Auth Service (Port 8081):** Manages user credentials, authenticates logins against the database, and issues session tokens.
-*   **User Service (Port 8082):** Manages customer profiles and vehicle registries.
-*   **Catalog Service (Port 8083):** Manages service categories and car service packages.
-*   **Booking Service (Port 8084):** Manages the core booking state machine and cross-service validations.
-*   **Frontend UI (Port 4200):** Angular Single Page Application.
+## Architecture
 
----
+The application is composed of the following microservices:
+
+- **api-gateway**: Serves as the entry point for all client requests, routing them to the appropriate microservices. Handles CORS and forwards authentication headers.
+- **discovery-server**: Eureka server for service registry and discovery.
+- **auth-service**: Manages user registration, login, and token generation.
+- **user-service**: Manages customer profiles and vehicle information.
+- **catalog-service**: Manages service categories and packages.
+- **booking-service**: Handles booking creation, management, and tracking.
+
+The frontend is an Angular 17+ application communicating with the backend via the API Gateway.
 
 ## Prerequisites
 
-Before setting up the project, ensure you have the following installed on your machine:
-1.  **Java Development Kit (JDK):** Version 21
-2.  **Node.js & npm:** Node v18+ and npm v9+ (for Angular frontend)
-3.  **Maven:** To build the Java microservices
-4.  **MySQL Server:** Version 8.0+ running locally on port `3306`
+To run this project locally, ensure you have the following installed:
 
----
+- **Java**: JDK 21
+- **Node.js**: v18.x or higher
+- **npm**: v9.x or higher
+- **Angular CLI**: v17+ (`npm install -g @angular/cli`)
+- **Maven**: 3.8+ (for building backend services)
+- **MySQL**: 8.0+
 
-## Setup & Configuration
+## Database Setup
 
-### 1. Database Setup
+1. Ensure MySQL is running on `localhost:3306`.
+2. Create the necessary databases by running the following SQL commands in your MySQL client:
 
-You must create the underlying MySQL databases before starting the backend services. Spring Boot's `ddl-auto=update` will automatically generate the tables.
-
-Open your MySQL client or terminal and run the following commands:
 ```sql
 CREATE DATABASE auth_db;
 CREATE DATABASE user_db;
@@ -39,88 +40,92 @@ CREATE DATABASE catalog_db;
 CREATE DATABASE booking_db;
 ```
 
-*Note: Ensure your MySQL root credentials match the properties in the microservices' `application.properties` (typically `root` / `root` or `root` / `password`). Update the `.properties` files in `src/main/resources` of each microservice if your local MySQL credentials differ.*
+3. Update the database credentials:
+   Each microservice has its own `application.properties` or `application.yml` file located in `src/main/resources/`. You must update the `spring.datasource.username` and `spring.datasource.password` properties in these files to match your local MySQL credentials.
 
-### 2. Building and Running the Backend Microservices
+Alternatively, you can provide these as environment variables when running the services.
 
-The backend consists of multiple Spring Boot applications that must be started in a specific order.
+## Consul Setup
 
-**Step 2.1: Build all modules**
-Open a terminal in the root `backend` folder and run:
-```bash
-mvn clean install -DskipTests
-```
+1. Ensure Consul is running locally on `localhost:8500`.
+   Download the binary from HashiCorp and run it in development mode:
+   ```bash
+   consul agent -dev
+   ```
+2. Configuration properties:
+   - The application relies on Consul for distributed configuration (if enabled).
+   - Update `spring.cloud.consul.host` and `spring.cloud.consul.port` in the properties file of each microservice if your Consul instance is running on a different host or port.
 
-**Step 2.2: Start the microservices**
-Open a separate terminal window for **each** of the following services and run them in this exact order:
+## Running the Backend
 
-1.  **Discovery Server** (Must start first so others can register)
-    ```bash
-    cd backend/discovery-server
-    mvn spring-boot:run
-    ```
-2.  **API Gateway**
-    ```bash
-    cd backend/api-gateway
-    mvn spring-boot:run
-    ```
-3.  **Auth Service**
-    ```bash
-    cd backend/auth-service
-    mvn spring-boot:run
-    ```
-4.  **User Service**
-    ```bash
-    cd backend/user-service
-    mvn spring-boot:run
-    ```
-5.  **Catalog Service**
-    ```bash
-    cd backend/catalog-service
-    mvn spring-boot:run
-    ```
-6.  **Booking Service**
-    ```bash
-    cd backend/booking-service
-    mvn spring-boot:run
-    ```
+You can start the backend services using Maven. **Order matters!** Start the `discovery-server` first.
 
-*Verify:* You can check that all services have successfully registered by opening your browser and navigating to the Eureka Dashboard at `http://localhost:8761`.
+1. **Start Discovery Server**:
 
-### 3. Setting Up the Angular Frontend
+   ```bash
+   cd backend/discovery-server
+   mvn spring-boot:run
+   ```
 
-Once the backend cluster is fully running, you can start the frontend.
+   _Wait until it is fully started on port 8761._
 
-1.  Open a new terminal and navigate to the frontend folder:
-    ```bash
-    cd frontend/angular-app
-    ```
-2.  Install the Node dependencies:
-    ```bash
-    npm install
-    ```
-3.  Start the Angular development server:
-    ```bash
-    npm start
-    ```
-    *(or use `ng serve`)*
+2. **Start API Gateway**:
 
-### 4. Accessing the Application
+   ```bash
+   cd backend/api-gateway
+   mvn spring-boot:run
+   ```
 
-Open your browser and navigate to:
-**http://localhost:4200**
+   _Runs on port 8080._
 
-#### Default Admin Credentials
-The system comes pre-seeded with a strictly locked Admin account. Do not attempt to register a new admin.
-*   **Email:** admin@gmail.com
-*   **Password:** admin1234
+3. **Start Core Services** (You can start these in any order or in parallel, preferably in separate terminal windows):
+   - **Auth Service**:
+     ```bash
+     cd backend/auth-service
+     mvn spring-boot:run
+     ```
+   - **User Service**:
+     ```bash
+     cd backend/user-service
+     mvn spring-boot:run
+     ```
+   - **Catalog Service**:
+     ```bash
+     cd backend/catalog-service
+     mvn spring-boot:run
+     ```
+   - **Booking Service**:
+     ```bash
+     cd backend/booking-service
+     mvn spring-boot:run
+     ```
 
-#### Customer Registration
-To test the customer flow, simply click "Register" on the login screen, create a new customer account, and log in to explore the Dashboard, Vehicle Registry, and Booking workflows.
+## Running the Frontend
 
----
+1. Navigate to the frontend directory:
+   ```bash
+   cd frontend
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Start the Angular development server:
+   ```bash
+   npm start
+   ```
+   _The application will be accessible at `http://localhost:4200`._
 
-## Important Business Rules (System Constraints)
-*   **Isolated Data:** Customers can only view and manage their own profiles, vehicles, and bookings. Admins have read-only access to customer data but full write access to the Service Catalog and Booking states.
-*   **Safe Deletion:** An Admin cannot delete a Service Category if it contains active services. Furthermore, an Admin cannot deactivate a Service Package if a customer currently has an active booking associated with it.
-*   **State Machine:** Bookings strictly follow `PENDING -> CONFIRMED -> IN_SERVICE -> READY_FOR_DELIVERY -> COMPLETED`. Customers may only cancel a booking while it is in the `PENDING` state.
+## System Initialization & Mock Data
+
+When you first run the backend services, Hibernate will automatically create the necessary tables in each database.
+Mock data is configured via `data.sql` and `tablescript.sql` scripts in the services to populate default data (like the default Admin user, predefined categories, and packages) for testing.
+
+## Default Credentials
+
+- **Admin**: The system provisions a default admin user. Please check the `data.sql` in `auth-service` for credentials or register a new user and modify their role in the database if testing admin features.
+- **Customer**: You can register a new customer via the frontend application.
+
+## API Documentation
+
+The system interacts via REST APIs. The frontend application makes HTTP requests to the API Gateway at `http://localhost:8080`, which then routes the requests to the respective microservices.

@@ -9,9 +9,23 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.client.HttpClientErrorException;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.UUID;
+import java.time.LocalDate;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.CriteriaBuilder.In;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 
 @Service
 public class BookingService {
@@ -25,12 +39,12 @@ public class BookingService {
     @Autowired
     private ModelMapper modelMapper;
 
-    @io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker(name = "default", fallbackMethod = "createBookingFallback")
+    @CircuitBreaker(name = "default", fallbackMethod = "createBookingFallback")
     public BookingDTO createBooking(BookingDTO dto) {
         // 1. Fetch Vehicle to verify ownership
         try {
             // Ideally we get a VehicleDTO, but a generic Map is fine to extract the userId
-            java.util.Map<String, Object> vehicle = restTemplate.getForObject("http://user-service/api/vehicles/" + dto.getVehicleId(), java.util.Map.class);
+            Map<String, Object> vehicle = restTemplate.getForObject("http://user-service/api/vehicles/" + dto.getVehicleId(), Map.class);
             if (vehicle == null || !dto.getCustomerId().equals(vehicle.get("userId"))) {
                 throw new RuntimeException("Vehicle does not belong to the user");
             }
@@ -40,7 +54,7 @@ public class BookingService {
 
         // 2. Fetch Service Package to verify it is ACTIVE
         try {
-            java.util.Map<String, Object> servicePackage = restTemplate.getForObject("http://catalog-service/api/service-packages/" + dto.getServiceId(), java.util.Map.class);
+            Map<String, Object> servicePackage = restTemplate.getForObject("http://catalog-service/api/service-packages/" + dto.getServiceId(), Map.class);
             if (servicePackage == null) {
                 throw new RuntimeException("Service Package not found");
             }
@@ -53,7 +67,7 @@ public class BookingService {
         }
 
         // 3. Check for past date
-        if (dto.getAppointmentDate().isBefore(java.time.LocalDate.now())) {
+        if (dto.getAppointmentDate().isBefore(LocalDate.now())) {
             throw new RuntimeException("Appointment date cannot be in the past");
         }
 
@@ -98,7 +112,7 @@ public class BookingService {
         return modelMapper.map(bookingRepository.save(booking), BookingDTO.class);
     }
 
-    public Page<BookingDTO> getAllBookings(org.springframework.data.domain.Pageable pageable) {
+    public Page<BookingDTO> getAllBookings(Pageable pageable) {
         return bookingRepository.findAll(pageable).map(b -> modelMapper.map(b, BookingDTO.class));
     }
 
@@ -120,27 +134,27 @@ public class BookingService {
                 .toList();
     }
     
-    @io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker(name = "default", fallbackMethod = "searchBookingsFallback")
-    public Page<BookingDTO> searchBookings(String referenceNumber, String customerName, BookingStatus status, java.time.LocalDate appointmentDate, String callerId, String userRole, org.springframework.data.domain.Pageable pageable) {
-        org.springframework.data.jpa.domain.Specification<Booking> spec = (root, query, cb) -> {
-            java.util.List<jakarta.persistence.criteria.Predicate> predicates = new java.util.ArrayList<>();
+    @CircuitBreaker(name = "default", fallbackMethod = "searchBookingsFallback")
+    public Page<BookingDTO> searchBookings(String referenceNumber, String customerName, BookingStatus status, LocalDate appointmentDate, String callerId, String userRole, Pageable pageable) {
+        Specification<Booking> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
             
             if (!"ADMIN".equals(userRole)) {
                 predicates.add(cb.equal(root.get("customerId"), callerId));
             } else if (customerName != null && !customerName.isEmpty()) {
-                org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+                HttpHeaders headers = new HttpHeaders();
                 headers.set("X-User-Id", callerId);
-                org.springframework.http.HttpEntity<String> entity = new org.springframework.http.HttpEntity<>(headers);
+                HttpEntity<String> entity = new HttpEntity<>(headers);
                 try {
-                    org.springframework.http.ResponseEntity<String[]> res = restTemplate.exchange(
+                    ResponseEntity<String[]> res = restTemplate.exchange(
                             "http://user-service/api/users/search?name=" + customerName,
-                            org.springframework.http.HttpMethod.GET,
+                            HttpMethod.GET,
                             entity,
                             String[].class
                     );
                     String[] userIds = res.getBody();
                     if (userIds != null && userIds.length > 0) {
-                        jakarta.persistence.criteria.CriteriaBuilder.In<String> inClause = cb.in(root.get("customerId"));
+                        In<String> inClause = cb.in(root.get("customerId"));
                         for (String id : userIds) {
                             inClause.value(id);
                         }
@@ -162,18 +176,18 @@ public class BookingService {
             if (appointmentDate != null) {
                 predicates.add(cb.equal(root.get("appointmentDate"), appointmentDate));
             }
-            return cb.and(predicates.toArray(new jakarta.persistence.criteria.Predicate[0]));
+            return cb.and(predicates.toArray(new Predicate[0]));
         };
 
         return bookingRepository.findAll(spec, pageable).map(b -> modelMapper.map(b, BookingDTO.class));
     }
     
-    public Page<BookingDTO> searchBookingsFallback(String referenceNumber, String customerName, BookingStatus status, java.time.LocalDate appointmentDate, String callerId, String userRole, org.springframework.data.domain.Pageable pageable, Throwable t) {
+    public Page<BookingDTO> searchBookingsFallback(String referenceNumber, String customerName, BookingStatus status, LocalDate appointmentDate, String callerId, String userRole, Pageable pageable, Throwable t) {
         throw new RuntimeException("Search is temporarily unavailable. Reason: " + t.getMessage());
     }
     
-    public java.util.Map<String, Long> getBookingStatistics(String callerId, String userRole) {
-        java.util.Map<String, Long> stats = new java.util.HashMap<>();
+    public Map<String, Long> getBookingStatistics(String callerId, String userRole) {
+        Map<String, Long> stats = new HashMap<>();
         for (BookingStatus status : BookingStatus.values()) {
             long count;
             if ("ADMIN".equals(userRole)) {
@@ -186,44 +200,44 @@ public class BookingService {
         return stats;
     }
     
-    @io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker(name = "default", fallbackMethod = "getDashboardSummaryFallback")
+    @CircuitBreaker(name = "default", fallbackMethod = "getDashboardSummaryFallback")
     public DashboardSummaryDTO getDashboardSummary(String customerId, boolean isAdmin) {
         DashboardSummaryDTO summary = new DashboardSummaryDTO();
         
-        org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+        HttpHeaders headers = new HttpHeaders();
         if (isAdmin) {
             headers.set("X-User-Id", "A1"); // Use an admin header for service-to-service calls
         } else {
             headers.set("X-User-Id", customerId);
         }
-        org.springframework.http.HttpEntity<String> entity = new org.springframework.http.HttpEntity<>(headers);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
 
         if (isAdmin) {
             summary.setTotalBookings(bookingRepository.count());
             
             try {
-                org.springframework.http.ResponseEntity<Long> cRes = restTemplate.exchange("http://user-service/api/users/count", org.springframework.http.HttpMethod.GET, entity, Long.class);
+                ResponseEntity<Long> cRes = restTemplate.exchange("http://user-service/api/users/count", HttpMethod.GET, entity, Long.class);
                 summary.setTotalCustomers(cRes.getBody() != null ? cRes.getBody() : 0);
             } catch (Exception e) {}
             
             try {
-                org.springframework.http.ResponseEntity<Long> catRes = restTemplate.exchange("http://catalog-service/api/categories/count", org.springframework.http.HttpMethod.GET, entity, Long.class);
+                ResponseEntity<Long> catRes = restTemplate.exchange("http://catalog-service/api/categories/count", HttpMethod.GET, entity, Long.class);
                 summary.setTotalCategories(catRes.getBody() != null ? catRes.getBody() : 0);
             } catch (Exception e) {}
             
             try {
-                org.springframework.http.ResponseEntity<Long> sRes = restTemplate.exchange("http://catalog-service/api/service-packages/count", org.springframework.http.HttpMethod.GET, entity, Long.class);
+                ResponseEntity<Long> sRes = restTemplate.exchange("http://catalog-service/api/service-packages/count", HttpMethod.GET, entity, Long.class);
                 summary.setTotalServices(sRes.getBody() != null ? sRes.getBody() : 0);
             } catch (Exception e) {}
 
         } else {
             summary.setTotalBookings(bookingRepository.countByCustomerId(customerId));
             summary.setCompletedBookings(bookingRepository.countByCustomerIdAndStatus(customerId, BookingStatus.COMPLETED));
-            summary.setActiveBookings(bookingRepository.countByCustomerIdAndStatusIn(customerId, java.util.Arrays.asList(
+            summary.setActiveBookings(bookingRepository.countByCustomerIdAndStatusIn(customerId, Arrays.asList(
                     BookingStatus.PENDING, BookingStatus.CONFIRMED, BookingStatus.IN_SERVICE, BookingStatus.READY_FOR_DELIVERY)));
             
             try {
-                org.springframework.http.ResponseEntity<Long> vRes = restTemplate.exchange("http://user-service/api/vehicles/user/" + customerId + "/count", org.springframework.http.HttpMethod.GET, entity, Long.class);
+                ResponseEntity<Long> vRes = restTemplate.exchange("http://user-service/api/vehicles/user/" + customerId + "/count", HttpMethod.GET, entity, Long.class);
                 summary.setTotalVehicles(vRes.getBody() != null ? vRes.getBody() : 0);
             } catch (Exception e) {}
         }
@@ -236,7 +250,7 @@ public class BookingService {
     }
 
     public Long getActiveBookingsCountForService(Long serviceId) {
-        return bookingRepository.countByServiceIdAndStatusIn(serviceId, java.util.Arrays.asList(
+        return bookingRepository.countByServiceIdAndStatusIn(serviceId, Arrays.asList(
                 BookingStatus.PENDING, BookingStatus.CONFIRMED, BookingStatus.IN_SERVICE, BookingStatus.READY_FOR_DELIVERY
         ));
     }

@@ -4,6 +4,7 @@ import com.infy.carservice.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
+import java.util.List;
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
@@ -25,7 +26,7 @@ public class UserController {
     }
     
     @GetMapping("/search")
-    public java.util.List<String> searchUsersByName(@RequestParam String name, @RequestHeader("X-User-Id") String callerId, @RequestHeader(value = "X-User-Role", defaultValue = "CUSTOMER") String userRole) {
+    public List<String> searchUsersByName(@RequestParam String name, @RequestHeader("X-User-Id") String callerId, @RequestHeader(value = "X-User-Role", defaultValue = "CUSTOMER") String userRole) {
         if (!"ADMIN".equals(userRole)) throw new RuntimeException("Unauthorized");
         return userService.searchUsersByName(name);
     }

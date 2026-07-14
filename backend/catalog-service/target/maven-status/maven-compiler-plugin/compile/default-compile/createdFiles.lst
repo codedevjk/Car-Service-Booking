@@ -1,3 +1,15 @@
-com\infy\carservice\catalog\controller\ServicePackageController.class
-com\infy\carservice\catalog\entity\AvailabilityStatus.class
+com\infy\carservice\catalog\dto\ServicePackageDTO.class
+com\infy\carservice\catalog\entity\ServiceCategory.class
+com\infy\carservice\catalog\exception\GlobalExceptionHandler.class
 com\infy\carservice\catalog\exception\LoggingAspect.class
+com\infy\carservice\catalog\config\AppConfig.class
+com\infy\carservice\catalog\controller\ServicePackageController.class
+com\infy\carservice\catalog\dto\ServiceCategoryDTO.class
+com\infy\carservice\catalog\entity\AvailabilityStatus.class
+com\infy\carservice\catalog\repository\ServicePackageRepository.class
+com\infy\carservice\catalog\service\ServiceCategoryService.class
+com\infy\carservice\catalog\entity\ServicePackage.class
+com\infy\carservice\catalog\controller\ServiceCategoryController.class
+com\infy\carservice\catalog\service\ServicePackageManagementService.class
+com\infy\carservice\catalog\CatalogServiceApplication.class
+com\infy\carservice\catalog\repository\ServiceCategoryRepository.class
