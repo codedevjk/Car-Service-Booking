@@ -1,6 +1,7 @@
 <header class="app-header">
   <div class="d-flex align-items-center gap-2">
-    <button type="button" class="btn btn-sm btn-outline-secondary sidebar-toggle d-lg-none" aria-label="Toggle sidebar" (click)="onToggle()">
+    <button type="button" class="btn btn-sm btn-outline-secondary sidebar-toggle" aria-label="Toggle sidebar"
+      (click)="onToggle()">
       <i class="bi bi-list"></i>
     </button>
     <div class="fw-semibold text-secondary d-none d-sm-block">Car Service Booking System</div>
@@ -8,9 +9,8 @@
   <div class="d-flex align-items-center gap-2 gap-md-3">
     <span class="badge text-bg-light border d-none d-md-inline">{{ userEmail }}</span>
     <button class="btn btn-sm btn-outline-danger" routerLink="/auth/login">
-      
+
       <span class="d-none d-sm-inline">Logout</span>
     </button>
   </div>
 </header>
-

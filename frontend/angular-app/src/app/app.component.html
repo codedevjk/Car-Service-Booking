@@ -1,4 +1,8 @@
-<div class="app-shell" [class.is-collapsed]="isCollapsed" [class.is-mobile]="isMobile" [class.mobile-open]="mobileOpen">
+<div class="app-shell"
+     [class.is-collapsed]="isCollapsed"
+     [class.is-mobile]="isMobile"
+     [class.mobile-open]="mobileOpen"
+     [class.desktop-sidebar-hidden]="!isMobile && desktopSidebarHidden">
   <ng-container *ngIf="!router.url.includes('/auth')">
     <div class="app-backdrop" *ngIf="isMobile && mobileOpen" (click)="closeMobileSidebar()"></div>
     <app-sidebar (click)="closeMobileSidebar()"></app-sidebar>

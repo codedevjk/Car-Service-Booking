@@ -38,4 +38,10 @@ public class VehicleService {
         }
         repository.deleteById(id);
     }
+
+    public VehicleDTO getVehicleById(Long id) {
+        Vehicle vehicle = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Vehicle not found"));
+        return modelMapper.map(vehicle, VehicleDTO.class);
+    }
 }

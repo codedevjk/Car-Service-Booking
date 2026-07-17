@@ -1,5 +1,5 @@
-<div class="container my-5">
-  <div class="d-flex justify-content-between align-items-center mb-4">
+<div class="container my-5" [class.px-0]="embedded" [class.my-0]="embedded">
+  <div *ngIf="!embedded" class="d-flex justify-content-between align-items-center mb-4">
     <h2>{{ isAdmin ? 'Booking Management (Admin)' : 'My Booking History' }}</h2>
     <button *ngIf="!isAdmin" class="btn btn-primary" routerLink="/service/browse">Book a Service</button>
   </div>
@@ -31,9 +31,9 @@
             </tr>
             <tr *ngFor="let b of bookings">
               <td class="fw-bold">{{ b.referenceNumber }}</td>
-              <td *ngIf="isAdmin">{{ userMap.get(b.customerId) || 'Loading...' }}</td>
-              <td>{{ vehicleMap.get(b.vehicleId) || 'Loading...' }}</td>
-              <td>{{ serviceMap.get(b.serviceId) || 'Loading...' }}</td>
+              <td *ngIf="isAdmin">{{ userMap[b.customerId] || '—' }}</td>
+              <td>{{ vehicleMap[b.vehicleId] || '—' }}</td>
+              <td>{{ serviceMap[b.serviceId] || '—' }}</td>
               <td>
                 <div>{{ b.appointmentDate | date:'mediumDate' }}</div>
                 <small class="text-muted">{{ b.timeSlot }}</small>
@@ -41,16 +41,13 @@
               <td>{{ b.problemDescription || 'N/A' }}</td>
               <td>
                 <ng-container *ngIf="isAdmin">
-                  <select class="form-select form-select-sm" 
-                          [value]="b.status" 
-                          (change)="updateStatus(b, $event)"
-                          [disabled]="b.status === 'COMPLETED' || b.status === 'CANCELLED'">
+                  <select class="form-select form-select-sm" [value]="b.status" (change)="updateStatus(b, $event)"
+                    [disabled]="b.status === 'COMPLETED' || b.status === 'CANCELLED'">
                     <option *ngFor="let s of getValidTransitions(b.status)" [value]="s">{{ s }}</option>
                   </select>
                 </ng-container>
                 <ng-container *ngIf="!isAdmin">
-                  <span class="badge rounded-pill" 
-                        [ngClass]="{
+                  <span class="badge rounded-pill" [ngClass]="{
                           'bg-secondary': b.status === 'PENDING',
                           'bg-info text-dark': b.status === 'CONFIRMED',
                           'bg-primary': b.status === 'IN_SERVICE',

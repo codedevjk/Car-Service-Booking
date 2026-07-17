@@ -24,9 +24,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Map<String, String>> handleRuntimeExceptions(RuntimeException ex) {
         Map<String, String> response = new HashMap<>();
-        response.put("message", ex.getMessage());
+        String message = ex.getMessage();
+        response.put("message", message);
         HttpStatus status = HttpStatus.BAD_REQUEST;
-        if (ex.getMessage().contains("Invalid credentials") || ex.getMessage().contains("not found")) {
+        if (message != null && (message.contains("Invalid credentials") || message.contains("not found"))) {
             status = HttpStatus.UNAUTHORIZED;
         }
         return new ResponseEntity<>(response, status);

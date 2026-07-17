@@ -53,4 +53,9 @@ public class ServicePackageController {
     public long getServicePackageCount() {
         return service.getServicePackages(null, Pageable.unpaged()).getTotalElements();
     }
+
+    @GetMapping("/{id}")
+    public ServicePackageDTO getServicePackageById(@PathVariable Long id) {
+        return service.getServicePackageById(id);
+    }
 }

@@ -11,8 +11,10 @@ export class AppComponent implements OnInit {
   isCollapsed = false;
   isMobile = false;
   mobileOpen = false;
+  // On desktop, sidebar starts visible; hamburger hides/shows it
+  desktopSidebarHidden = true;
 
-  constructor(public router: Router) {}
+  constructor(public router: Router) { }
 
   ngOnInit() {
     this.checkScreenSize();
@@ -32,7 +34,11 @@ export class AppComponent implements OnInit {
 
   toggleSidebar() {
     if (this.isMobile) {
+      // Mobile: slide-in overlay
       this.mobileOpen = !this.mobileOpen;
+    } else {
+      // Desktop: hide/show sidebar completely
+      this.desktopSidebarHidden = !this.desktopSidebarHidden;
     }
   }
 

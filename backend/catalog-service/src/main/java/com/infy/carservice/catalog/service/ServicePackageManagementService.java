@@ -26,7 +26,8 @@ public class ServicePackageManagementService {
     private ModelMapper modelMapper;
 
     @Autowired
-    private RestTemplate restTemplate;
+    private  RestTemplate restTemplate;
+    
 
     public Page<ServicePackageDTO> getServicePackages(Long categoryId, Pageable pageable) {
         Page<ServicePackage> pageResult;
@@ -90,5 +91,11 @@ public class ServicePackageManagementService {
 
         sp.setAvailabilityStatus(AvailabilityStatus.INACTIVE);
         repository.save(sp);
+    }
+
+    public ServicePackageDTO getServicePackageById(Long id) {
+        ServicePackage sp = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Service package not found"));
+        return modelMapper.map(sp, ServicePackageDTO.class);
     }
 }

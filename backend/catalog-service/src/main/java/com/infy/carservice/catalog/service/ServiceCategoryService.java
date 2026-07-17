@@ -55,13 +55,11 @@ public class ServiceCategoryService {
     public void deleteCategory(Long id) {
         ServiceCategory category = repository.findById(id).orElseThrow(() -> new RuntimeException("Category not found"));
 
-        // Ensure no active services exist under this category
         long activeCount = servicePackageRepository.findByAvailabilityStatusAndCategoryId(AvailabilityStatus.ACTIVE, id, Pageable.unpaged()).getTotalElements();
         if (activeCount > 0) {
             throw new RuntimeException("Cannot delete category containing active services");
         }
 
-        category.setActive(false);
-        repository.save(category);
+        repository.deleteById(id);
     }
 }

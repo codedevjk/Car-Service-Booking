@@ -27,4 +27,9 @@ export class SidebarComponent {
     }
     return 'USER';
   }
+
+  get isAdmin(): boolean {
+    const userId = localStorage.getItem('userId') || '';
+    return userId.startsWith('A');
+  }
 }

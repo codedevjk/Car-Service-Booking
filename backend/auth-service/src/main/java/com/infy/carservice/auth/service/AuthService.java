@@ -30,8 +30,12 @@ public class AuthService {
         user.setUserId("U" + (user.getId() - 1));
         userRepository.save(user);
         
-        createProfileInUserService(user);
-        
+        try {
+            createProfileInUserService(user);
+        } catch (Exception e) {
+            System.err.println("Fallback triggered: Could not create profile for " + user.getUserId() + ". Reason: " + e.getMessage());
+        }
+
         return "User registered successfully";
     }
 

@@ -27,4 +27,9 @@ public class VehicleController {
     public long getVehicleCount(@PathVariable String userId, @RequestHeader("X-User-Id") String callerId, @RequestHeader(value = "X-User-Role", defaultValue = "CUSTOMER") String userRole) {
         return vehicleService.getVehiclesByUserId(userId, callerId, userRole).size();
     }
+
+    @GetMapping("/{id}")
+    public VehicleDTO getVehicleById(@PathVariable Long id) {
+        return vehicleService.getVehicleById(id);
+    }
 }

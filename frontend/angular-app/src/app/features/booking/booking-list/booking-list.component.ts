@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input, ChangeDetectorRef } from '@angular/core';
 import { BookingService } from 'src/app/core/services/booking.service';
 import { HttpClient } from '@angular/common/http';
-import { catchError } from 'rxjs/operators';
+import { catchError, forkJoin } from 'rxjs';
 import { of } from 'rxjs';
 
 @Component({
@@ -11,18 +11,22 @@ import { of } from 'rxjs';
 })
 export class BookingListComponent implements OnInit {
 
+  @Input() embedded: boolean = false;
   bookings: any[] = [];
   isAdmin: boolean = false;
   userId: string = '';
   errorMessage: string = '';
 
-  vehicleMap: Map<number, string> = new Map();
-  serviceMap: Map<number, string> = new Map();
-  userMap: Map<string, string> = new Map();
+  // Plain objects instead of Map — Angular change detection tracks object property
+  // changes but does NOT track Map.set() mutations, causing "Loading..." to persist.
+  vehicleMap: { [id: number]: string } = {};
+  serviceMap: { [id: number]: string } = {};
+  userMap:    { [id: string]: string } = {};
 
   constructor(
     private bookingService: BookingService,
-    private http: HttpClient
+    private http: HttpClient,
+    private cdr: ChangeDetectorRef
   ) {
     this.userId = localStorage.getItem('userId') || '';
     this.isAdmin = this.userId.startsWith('A');
@@ -55,39 +59,63 @@ export class BookingListComponent implements OnInit {
   hydrateData(): void {
     const vIds = [...new Set(this.bookings.map(b => b.vehicleId))];
     const sIds = [...new Set(this.bookings.map(b => b.serviceId))];
-    const cIds = [...new Set(this.bookings.map(b => b.customerId))];
+    const cIds = [...new Set(this.bookings.map(b => b.customerId))] as string[];
 
-    vIds.forEach(id => {
-      if (!this.vehicleMap.has(id)) {
-        this.http.get<any>(`http://localhost:8080/api/vehicles/${id}`)
-          .pipe(catchError(() => of(null)))
-          .subscribe(v => {
-            if (v) this.vehicleMap.set(id, `${v.manufacturer} ${v.model} (${v.registrationNumber})`);
-          });
-      }
-    });
+    // Build parallel request arrays
+    const vehicleRequests = vIds.map(id =>
+      this.http.get<any>(`http://localhost:8080/api/vehicles/${id}`)
+        .pipe(catchError(() => of(null)))
+    );
 
-    sIds.forEach(id => {
-      if (!this.serviceMap.has(id)) {
-        this.http.get<any>(`http://localhost:8080/api/service-packages/${id}`)
-          .pipe(catchError(() => of(null)))
-          .subscribe(s => {
-            if (s) this.serviceMap.set(id, s.name);
-          });
-      }
-    });
+    const serviceRequests = sIds.map(id =>
+      this.http.get<any>(`http://localhost:8080/api/service-packages/${id}`)
+        .pipe(catchError(() => of(null)))
+    );
 
-    if (this.isAdmin) {
-      cIds.forEach(id => {
-        if (!this.userMap.has(id)) {
+    const userRequests = this.isAdmin
+      ? cIds.map(id =>
           this.http.get<any>(`http://localhost:8080/api/users/profile/${id}`)
             .pipe(catchError(() => of(null)))
-            .subscribe(u => {
-              if (u) this.userMap.set(id, `${u.firstName} ${u.lastName} (${u.email})`);
-            });
-        }
+        )
+      : [];
+
+    // Fire ALL requests in parallel using forkJoin — render once everything is ready
+    const allRequests = [...vehicleRequests, ...serviceRequests, ...userRequests];
+
+    if (allRequests.length === 0) return;
+
+    forkJoin(allRequests).subscribe(results => {
+      // Slice results back into their groups
+      const vResults = results.slice(0, vIds.length);
+      const sResults = results.slice(vIds.length, vIds.length + sIds.length);
+      const uResults = results.slice(vIds.length + sIds.length);
+
+      const newVehicleMap: { [id: number]: string } = {};
+      vIds.forEach((id, i) => {
+        const v = vResults[i];
+        if (v) newVehicleMap[id as number] = `${v.manufacturer} ${v.model} (${v.registrationNumber})`;
       });
-    }
+
+      const newServiceMap: { [id: number]: string } = {};
+      sIds.forEach((id, i) => {
+        const s = sResults[i];
+        if (s) newServiceMap[id as number] = s.name;
+      });
+
+      const newUserMap: { [id: string]: string } = {};
+      if (this.isAdmin) {
+        cIds.forEach((id, i) => {
+          const u = uResults[i];
+          if (u) newUserMap[id] = `${u.fullName} (${u.email})`;
+        });
+      }
+
+      // Assign new object references — triggers Angular change detection
+      this.vehicleMap = newVehicleMap;
+      this.serviceMap = newServiceMap;
+      this.userMap    = newUserMap;
+      this.cdr.markForCheck();
+    });
   }
 
   updateStatus(booking: any, event: Event): void {

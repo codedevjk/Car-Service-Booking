@@ -102,3 +102,15 @@ body { background: var(--brand-surface); color: #0f172a; font-family: system-ui,
 .card { border: 1px solid #e5e7eb; box-shadow: 0 1px 2px rgba(0,0,0,.03); }
 .table thead th { font-size: .78rem; text-transform: uppercase; letter-spacing: .05em; color: var(--brand-muted); background: #f8fafc; }
 .badge-status { font-size: .72rem; padding: .35em .6em; }
+
+/* Desktop sidebar hide/show via hamburger */
+.app-shell.desktop-sidebar-hidden .app-sidebar {
+  transform: translateX(-100%);
+  width: 0;
+  overflow: hidden;
+  min-width: 0;
+}
+.app-content {
+  transition: all .2s ease;
+}
+

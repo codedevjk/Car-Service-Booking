@@ -7,37 +7,35 @@
   <ul class="nav flex-column">
     <li class="nav-item">
       <a routerLink="/dashboard" routerLinkActive="active" class="nav-link">
-        
         <span class="nav-text">Dashboard</span>
       </a>
     </li>
-    <li class="nav-item">
+    <!-- Profile: only for customers — admin has no personal profile to edit -->
+    <li class="nav-item" *ngIf="!isAdmin">
       <a routerLink="/profile" routerLinkActive="active" class="nav-link">
-        
         <span class="nav-text">Profile</span>
       </a>
     </li>
-    <li class="nav-item">
+    <!-- Vehicles: only for customers — admin doesn't own vehicles -->
+    <li class="nav-item" *ngIf="!isAdmin">
       <a routerLink="/vehicles" routerLinkActive="active" class="nav-link">
-        
         <span class="nav-text">Vehicles</span>
       </a>
     </li>
-    <li class="nav-item">
+    <!-- Categories & Services: admin management pages -->
+    <li class="nav-item" *ngIf="isAdmin">
       <a routerLink="/categories" routerLinkActive="active" class="nav-link">
-        
         <span class="nav-text">Categories</span>
       </a>
     </li>
-    <li class="nav-item">
+    <li class="nav-item" *ngIf="isAdmin">
       <a routerLink="/services" routerLinkActive="active" class="nav-link">
-        
         <span class="nav-text">Services</span>
       </a>
     </li>
-    <li class="nav-item">
+    <!-- My Bookings: only for customers — admin sees all bookings on the dashboard -->
+    <li class="nav-item" *ngIf="!isAdmin">
       <a routerLink="/bookings" routerLinkActive="active" class="nav-link">
-        
         <span class="nav-text">My Bookings</span>
       </a>
     </li>

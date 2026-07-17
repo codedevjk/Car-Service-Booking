@@ -32,4 +32,20 @@ export class AuthService {
     localStorage.removeItem('userId');
     localStorage.removeItem('role');
   }
+
+  isLoggedIn(): boolean {
+    return !!localStorage.getItem('userId');
+  }
+
+  getRole(): string | null {
+    return localStorage.getItem('role');
+  }
+
+  isAdmin(): boolean {
+    return this.getRole() === 'ADMIN';
+  }
+
+  isCustomer(): boolean {
+    return this.getRole() === 'CUSTOMER';
+  }
 }
