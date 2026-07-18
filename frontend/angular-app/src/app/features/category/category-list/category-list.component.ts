@@ -81,9 +81,11 @@ export class CategoryListComponent implements OnInit {
     }
     this.isSubmitting = true;
     
-    // Note: The backend controller doesn't explicitly support update by ID right now.
-    // It only has a POST /api/categories that creates a new one. 
-    this.categoryService.addCategory(this.categoryForm.value).subscribe({
+    const request = this.editing
+      ? this.categoryService.updateCategory(this.editing.id, this.categoryForm.value)
+      : this.categoryService.addCategory(this.categoryForm.value);
+
+    request.subscribe({
       next: () => {
         this.isSubmitting = false;
         this.showForm = false;

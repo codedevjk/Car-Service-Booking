@@ -4,8 +4,8 @@
      [class.mobile-open]="mobileOpen"
      [class.desktop-sidebar-hidden]="!isMobile && desktopSidebarHidden">
   <ng-container *ngIf="!router.url.includes('/auth')">
-    <div class="app-backdrop" *ngIf="isMobile && mobileOpen" (click)="closeMobileSidebar()"></div>
-    <app-sidebar (click)="closeMobileSidebar()"></app-sidebar>
+    <div class="app-backdrop" *ngIf="isMobile && mobileOpen" (click)="closeSidebar()"></div>
+    <app-sidebar (click)="closeSidebar()"></app-sidebar>
   </ng-container>
   
   <div class="app-content" [style.padding]="router.url.includes('/auth') ? '0' : ''">

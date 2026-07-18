@@ -42,9 +42,11 @@ export class AppComponent implements OnInit {
     }
   }
 
-  closeMobileSidebar() {
+  closeSidebar() {
     if (this.isMobile && this.mobileOpen) {
       this.mobileOpen = false;
+    } else if (!this.isMobile && !this.desktopSidebarHidden) {
+      this.desktopSidebarHidden = true;
     }
   }
 }

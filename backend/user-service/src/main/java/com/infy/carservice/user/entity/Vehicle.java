@@ -1,95 +1,105 @@
 package com.infy.carservice.user.entity;
-import jakarta.persistence.*;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import lombok.Data;
+
 @Entity
 @Data
 public class Vehicle {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(nullable = false)
     private String userId;
-    
+
     @Column(unique = true, nullable = false)
     private String registrationNumber;
-    
+
     @Column(nullable = false)
     private String manufacturer;
-    
+
     @Column(nullable = false)
     private String model;
-    
+
     private String fuelType;
-    
+
     private Integer manufacturingYear;
 
-	public Vehicle(Long id, String userId, String registrationNumber, String manufacturer, String model,
-			String fuelType, Integer manufacturingYear) {
-		super();
-		this.id = id;
-		this.userId = userId;
-		this.registrationNumber = registrationNumber;
-		this.manufacturer = manufacturer;
-		this.model = model;
-		this.fuelType = fuelType;
-		this.manufacturingYear = manufacturingYear;
-	}
+    public Vehicle() {
+        super();
+    }
 
-	public Long getId() {
-		return id;
-	}
+    public Vehicle(Long id, String userId, String registrationNumber, String manufacturer, String model,
+            String fuelType, Integer manufacturingYear) {
+        super();
+        this.id = id;
+        this.userId = userId;
+        this.registrationNumber = registrationNumber;
+        this.manufacturer = manufacturer;
+        this.model = model;
+        this.fuelType = fuelType;
+        this.manufacturingYear = manufacturingYear;
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public String getUserId() {
-		return userId;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public void setUserId(String userId) {
-		this.userId = userId;
-	}
+    public String getUserId() {
+        return userId;
+    }
 
-	public String getRegistrationNumber() {
-		return registrationNumber;
-	}
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
 
-	public void setRegistrationNumber(String registrationNumber) {
-		this.registrationNumber = registrationNumber;
-	}
+    public String getRegistrationNumber() {
+        return registrationNumber;
+    }
 
-	public String getManufacturer() {
-		return manufacturer;
-	}
+    public void setRegistrationNumber(String registrationNumber) {
+        this.registrationNumber = registrationNumber;
+    }
 
-	public void setManufacturer(String manufacturer) {
-		this.manufacturer = manufacturer;
-	}
+    public String getManufacturer() {
+        return manufacturer;
+    }
 
-	public String getModel() {
-		return model;
-	}
+    public void setManufacturer(String manufacturer) {
+        this.manufacturer = manufacturer;
+    }
 
-	public void setModel(String model) {
-		this.model = model;
-	}
+    public String getModel() {
+        return model;
+    }
 
-	public String getFuelType() {
-		return fuelType;
-	}
+    public void setModel(String model) {
+        this.model = model;
+    }
 
-	public void setFuelType(String fuelType) {
-		this.fuelType = fuelType;
-	}
+    public String getFuelType() {
+        return fuelType;
+    }
 
-	public Integer getManufacturingYear() {
-		return manufacturingYear;
-	}
+    public void setFuelType(String fuelType) {
+        this.fuelType = fuelType;
+    }
 
-	public void setManufacturingYear(Integer manufacturingYear) {
-		this.manufacturingYear = manufacturingYear;
-	}
-    
-    
+    public Integer getManufacturingYear() {
+        return manufacturingYear;
+    }
+
+    public void setManufacturingYear(Integer manufacturingYear) {
+        this.manufacturingYear = manufacturingYear;
+    }
+
 }

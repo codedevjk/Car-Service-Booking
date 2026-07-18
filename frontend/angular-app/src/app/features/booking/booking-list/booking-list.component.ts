@@ -21,7 +21,7 @@ export class BookingListComponent implements OnInit {
   // changes but does NOT track Map.set() mutations, causing "Loading..." to persist.
   vehicleMap: { [id: number]: string } = {};
   serviceMap: { [id: number]: string } = {};
-  userMap:    { [id: string]: string } = {};
+  userMap: { [id: string]: string } = {};
 
   constructor(
     private bookingService: BookingService,
@@ -74,9 +74,9 @@ export class BookingListComponent implements OnInit {
 
     const userRequests = this.isAdmin
       ? cIds.map(id =>
-          this.http.get<any>(`http://localhost:8080/api/users/profile/${id}`)
-            .pipe(catchError(() => of(null)))
-        )
+        this.http.get<any>(`http://localhost:8080/api/users/profile/${id}`)
+          .pipe(catchError(() => of(null)))
+      )
       : [];
 
     // Fire ALL requests in parallel using forkJoin — render once everything is ready
@@ -106,14 +106,14 @@ export class BookingListComponent implements OnInit {
       if (this.isAdmin) {
         cIds.forEach((id, i) => {
           const u = uResults[i];
-          if (u) newUserMap[id] = `${u.fullName} (${u.email})`;
+          if (u) newUserMap[id] = u.fullName;
         });
       }
 
       // Assign new object references — triggers Angular change detection
       this.vehicleMap = newVehicleMap;
       this.serviceMap = newServiceMap;
-      this.userMap    = newUserMap;
+      this.userMap = newUserMap;
       this.cdr.markForCheck();
     });
   }

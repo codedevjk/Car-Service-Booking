@@ -63,8 +63,8 @@ public class BookingService {
             if (servicePackage == null) {
                 throw new RuntimeException("Service Package not found");
             }
-            Boolean isActive = (Boolean) servicePackage.get("availabilityStatus");
-            if (isActive == null || !isActive) {
+            String availabilityStatus = (String) servicePackage.get("availabilityStatus");
+            if (availabilityStatus == null || !"ACTIVE".equals(availabilityStatus)) {
                 throw new RuntimeException("Cannot book an inactive service");
             }
         } catch (HttpClientErrorException.NotFound e) {
@@ -82,7 +82,8 @@ public class BookingService {
         }
 
         Booking booking = modelMapper.map(dto, Booking.class);
-        booking.setReferenceNumber("B" + UUID.randomUUID().toString().substring(0, 8).toUpperCase());
+        long userBookingCount = bookingRepository.countByCustomerId(dto.getCustomerId());
+        booking.setReferenceNumber("BKG" + dto.getCustomerId() + "000" + (userBookingCount + 1));
         booking.setStatus(BookingStatus.PENDING);
 
         Booking saved = bookingRepository.save(booking);

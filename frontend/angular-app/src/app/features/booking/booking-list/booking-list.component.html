@@ -1,14 +1,14 @@
-<div class="container my-5" [class.px-0]="embedded" [class.my-0]="embedded">
+<div [ngClass]="embedded ? '' : 'container my-5'">
   <div *ngIf="!embedded" class="d-flex justify-content-between align-items-center mb-4">
     <h2>{{ isAdmin ? 'Booking Management (Admin)' : 'My Booking History' }}</h2>
-    <button *ngIf="!isAdmin" class="btn btn-primary" routerLink="/service/browse">Book a Service</button>
+    <button *ngIf="!isAdmin" class="btn btn-primary" routerLink="/services/browse">Book a Service</button>
   </div>
 
   <div *ngIf="errorMessage" class="alert alert-danger">
     {{ errorMessage }}
   </div>
 
-  <div class="card shadow-sm">
+  <div class="card" [class.border-0]="embedded" [class.shadow-sm]="!embedded">
     <div class="card-body p-0">
       <div class="table-responsive">
         <table class="table table-hover mb-0 align-middle">
@@ -41,7 +41,13 @@
               <td>{{ b.problemDescription || 'N/A' }}</td>
               <td>
                 <ng-container *ngIf="isAdmin">
-                  <select class="form-select form-select-sm" [value]="b.status" (change)="updateStatus(b, $event)"
+                  <select class="form-select form-select-sm fw-semibold status-select" [ngClass]="{
+                          'bg-warning text-dark': b.status === 'PENDING',
+                          'bg-success text-white': b.status === 'CONFIRMED' || b.status === 'COMPLETED',
+                          'bg-info text-dark': b.status === 'IN_SERVICE',
+                          'bg-primary text-white': b.status === 'READY_FOR_DELIVERY',
+                          'bg-danger text-white': b.status === 'CANCELLED'
+                    }" [value]="b.status" (change)="updateStatus(b, $event)"
                     [disabled]="b.status === 'COMPLETED' || b.status === 'CANCELLED'">
                     <option *ngFor="let s of getValidTransitions(b.status)" [value]="s">{{ s }}</option>
                   </select>

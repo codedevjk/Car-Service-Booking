@@ -18,11 +18,11 @@ export class VehicleListComponent implements OnInit {
   editing: any = null;
   confirmId: string | null = null;
   error: string | null = null;
-  
+
   vehicleForm!: FormGroup;
   isSubmitting = false;
 
-  constructor(private fb: FormBuilder, private vehicleService: VehicleService) {}
+  constructor(private fb: FormBuilder, private vehicleService: VehicleService) { }
 
   ngOnInit(): void {
     this.initForm();
@@ -37,7 +37,7 @@ export class VehicleListComponent implements OnInit {
   initForm(): void {
     const currentYear = new Date().getFullYear();
     this.vehicleForm = this.fb.group({
-      registrationNumber: ['', [Validators.required, Validators.pattern(/^[A-Z]{2}[A-Za-z0-9]{6}$/)]],
+      registrationNumber: ['', [Validators.required, Validators.pattern(/^[A-Z]{2}[0-9]{2}[A-Z]{2}[0-9]{4}$/)]],
       manufacturer: ['', Validators.required],
       model: ['', Validators.required],
       fuelType: ['PETROL', Validators.required],
@@ -51,8 +51,8 @@ export class VehicleListComponent implements OnInit {
     this.vehicleService.getVehicles(userId).subscribe({
       next: (data) => {
         const lowerSearch = this.search.toLowerCase();
-        this.vehicles = data.filter((v: any) => 
-          v.registrationNumber.toLowerCase().includes(lowerSearch) || 
+        this.vehicles = data.filter((v: any) =>
+          v.registrationNumber.toLowerCase().includes(lowerSearch) ||
           v.manufacturer.toLowerCase().includes(lowerSearch)
         );
         this.total = this.vehicles.length;
@@ -75,7 +75,12 @@ export class VehicleListComponent implements OnInit {
 
   openEdit(v: any): void {
     this.editing = v;
-    this.vehicleForm.patchValue(v);
+    // Strip hyphens so it passes the new strict regex pattern validation
+    const vToPatch = {
+      ...v,
+      registrationNumber: v.registrationNumber ? v.registrationNumber.replace(/-/g, '') : ''
+    };
+    this.vehicleForm.patchValue(vToPatch);
     this.showForm = true;
   }
 
@@ -91,7 +96,7 @@ export class VehicleListComponent implements OnInit {
     }
     this.isSubmitting = true;
     const userId = this.getUserId();
-    
+
     if (this.editing) {
       this.vehicleService.updateVehicle(this.editing.id, this.vehicleForm.value, userId).subscribe({
         next: () => {
@@ -134,5 +139,17 @@ export class VehicleListComponent implements OnInit {
       },
       error: (err) => console.error('Failed to delete vehicle', err)
     });
+  }
+
+  // Formats KA01MN1122 to KA-01-MN-1122. If already formatted or invalid length, returns as is.
+  formatRegNo(regNo: string): string {
+    if (!regNo) return '';
+    // If it already has hyphens, just return it
+    if (regNo.includes('-')) return regNo;
+    // If it exactly matches the 10 character pattern, add hyphens
+    if (/^[A-Z]{2}[0-9]{2}[A-Z]{2}[0-9]{4}$/i.test(regNo)) {
+      return `${regNo.substring(0, 2)}-${regNo.substring(2, 4)}-${regNo.substring(4, 6)}-${regNo.substring(6, 10)}`;
+    }
+    return regNo;
   }
 }

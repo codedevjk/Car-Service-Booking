@@ -32,4 +32,9 @@ public class VehicleController {
     public VehicleDTO getVehicleById(@PathVariable Long id) {
         return vehicleService.getVehicleById(id);
     }
+
+    @PutMapping("/{id}")
+    public VehicleDTO updateVehicle(@PathVariable Long id, @Valid @RequestBody VehicleDTO dto, @RequestHeader("X-User-Id") String callerId) {
+        return vehicleService.updateVehicle(id, dto, callerId);
+    }
 }

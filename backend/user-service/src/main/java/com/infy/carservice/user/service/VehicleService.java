@@ -44,4 +44,26 @@ public class VehicleService {
                 .orElseThrow(() -> new RuntimeException("Vehicle not found"));
         return modelMapper.map(vehicle, VehicleDTO.class);
     }
+
+    public VehicleDTO updateVehicle(Long id, VehicleDTO dto, String callerId) {
+        Vehicle vehicle = repository.findById(id).orElseThrow(() -> new RuntimeException("Vehicle not found"));
+        if (!vehicle.getUserId().equals(callerId)) {
+            throw new RuntimeException("Unauthorized to update this vehicle");
+        }
+        
+        // Ensure no other vehicle has this new registration number
+        repository.findByRegistrationNumber(dto.getRegistrationNumber()).ifPresent(existing -> {
+            if (!existing.getId().equals(id)) {
+                throw new RuntimeException("Vehicle registration number must be unique");
+            }
+        });
+        
+        vehicle.setRegistrationNumber(dto.getRegistrationNumber());
+        vehicle.setManufacturer(dto.getManufacturer());
+        vehicle.setModel(dto.getModel());
+        vehicle.setFuelType(dto.getFuelType());
+        vehicle.setManufacturingYear(dto.getManufacturingYear());
+        
+        return modelMapper.map(repository.save(vehicle), VehicleDTO.class);
+    }
 }

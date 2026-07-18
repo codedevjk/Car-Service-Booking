@@ -10,8 +10,8 @@
     <div class="card-body">
       <div class="input-group" style="max-width: 420px;">
         <span class="input-group-text bg-white"></span>
-        <input class="form-control" placeholder="Search by reg no, make, model..."
-               [value]="search" (input)="onSearchChange($any($event.target).value)" />
+        <input class="form-control" placeholder="Search by reg no, make, model..." [value]="search"
+          (input)="onSearchChange($any($event.target).value)" />
       </div>
     </div>
   </div>
@@ -21,7 +21,12 @@
       <table class="table mb-0 align-middle">
         <thead>
           <tr>
-            <th>Reg No</th><th>Manufacturer</th><th>Model</th><th>Fuel</th><th>Year</th><th class="text-end">Actions</th>
+            <th>Reg No</th>
+            <th>Manufacturer</th>
+            <th>Model</th>
+            <th>Fuel</th>
+            <th>Year</th>
+            <th class="text-end">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -29,7 +34,7 @@
             <td colspan="6" class="text-center text-secondary py-4">No vehicles found</td>
           </tr>
           <tr *ngFor="let v of vehicles">
-            <td class="fw-semibold">{{ v.registrationNumber }}</td>
+            <td class="fw-semibold">{{ formatRegNo(v.registrationNumber) }}</td>
             <td>{{ v.manufacturer }}</td>
             <td>{{ v.model }}</td>
             <td><span class="badge text-bg-light border">{{ v.fuelType }}</span></td>
@@ -58,29 +63,38 @@
               <h5 class="modal-title">{{ editing ? 'Update Vehicle' : 'Add Vehicle' }}</h5>
               <button type="button" class="btn-close" (click)="closeForm()"></button>
             </div>
-            
+
             <div class="modal-body">
               <div *ngIf="error" class="alert alert-danger py-2 small">{{ error }}</div>
-              
+
               <div class="row g-3">
                 <div class="col-md-6">
                   <label class="form-label small fw-semibold">Registration Number</label>
-                  <input class="form-control" [class.is-invalid]="vehicleForm.get('registrationNumber')?.invalid && vehicleForm.get('registrationNumber')?.touched" formControlName="registrationNumber" />
-                  <div *ngIf="vehicleForm.get('registrationNumber')?.invalid" class="invalid-feedback">Please provide a valid registrationNumber</div>
+                  <input class="form-control"
+                    [class.is-invalid]="vehicleForm.get('registrationNumber')?.invalid && vehicleForm.get('registrationNumber')?.touched"
+                    formControlName="registrationNumber" />
+                  <div *ngIf="vehicleForm.get('registrationNumber')?.invalid" class="invalid-feedback">Please provide a
+                    valid registrationNumber</div>
                 </div>
-                
+
                 <div class="col-md-6">
                   <label class="form-label small fw-semibold">Manufacturer</label>
-                  <input class="form-control" [class.is-invalid]="vehicleForm.get('manufacturer')?.invalid && vehicleForm.get('manufacturer')?.touched" formControlName="manufacturer" />
-                  <div *ngIf="vehicleForm.get('manufacturer')?.invalid" class="invalid-feedback">Please provide a valid manufacturer</div>
+                  <input class="form-control"
+                    [class.is-invalid]="vehicleForm.get('manufacturer')?.invalid && vehicleForm.get('manufacturer')?.touched"
+                    formControlName="manufacturer" />
+                  <div *ngIf="vehicleForm.get('manufacturer')?.invalid" class="invalid-feedback">Please provide a valid
+                    manufacturer</div>
                 </div>
-                
+
                 <div class="col-md-6">
                   <label class="form-label small fw-semibold">Model</label>
-                  <input class="form-control" [class.is-invalid]="vehicleForm.get('model')?.invalid && vehicleForm.get('model')?.touched" formControlName="model" />
-                  <div *ngIf="vehicleForm.get('model')?.invalid" class="invalid-feedback">Please provide a valid model</div>
+                  <input class="form-control"
+                    [class.is-invalid]="vehicleForm.get('model')?.invalid && vehicleForm.get('model')?.touched"
+                    formControlName="model" />
+                  <div *ngIf="vehicleForm.get('model')?.invalid" class="invalid-feedback">Please provide a valid model
+                  </div>
                 </div>
-                
+
                 <div class="col-md-3">
                   <label class="form-label small fw-semibold">Fuel Type</label>
                   <select class="form-select" formControlName="fuelType">
@@ -90,18 +104,22 @@
                     <option value="HYBRID">Hybrid</option>
                   </select>
                 </div>
-                
+
                 <div class="col-md-3">
                   <label class="form-label small fw-semibold">Year</label>
-                  <input type="number" class="form-control" [class.is-invalid]="vehicleForm.get('manufacturingYear')?.invalid && vehicleForm.get('manufacturingYear')?.touched" formControlName="manufacturingYear" />
-                  <div *ngIf="vehicleForm.get('manufacturingYear')?.invalid" class="invalid-feedback">Please provide a valid manufacturingYear</div>
+                  <input type="number" class="form-control"
+                    [class.is-invalid]="vehicleForm.get('manufacturingYear')?.invalid && vehicleForm.get('manufacturingYear')?.touched"
+                    formControlName="manufacturingYear" />
+                  <div *ngIf="vehicleForm.get('manufacturingYear')?.invalid" class="invalid-feedback">Please provide a
+                    valid manufacturingYear</div>
                 </div>
               </div>
             </div>
-            
+
             <div class="modal-footer">
               <button type="button" class="btn btn-outline-secondary" (click)="closeForm()">Cancel</button>
-              <button type="submit" class="btn btn-primary" [disabled]="isSubmitting">{{ editing ? 'Update' : 'Create' }}</button>
+              <button type="submit" class="btn btn-primary" [disabled]="isSubmitting">{{ editing ? 'Update' : 'Create'
+                }}</button>
             </div>
           </form>
         </div>
@@ -132,4 +150,3 @@
     <div class="modal-backdrop fade show"></div>
   </div>
 </div>
-
